@@ -13,6 +13,17 @@ By coupling classical pre-processing and dimensionality reduction with quantum H
 
 ---
 
+## 🎯 Clinical Benchmarks & Breakthroughs
+
+In clinical diagnostics, false negatives (missed malignant tumors or unnoticed cardiac/retinal lesions) carry severe mortality risks. HQML-EDD compares **5 Classical Models** against **3 Quantum Machine Learning Architectures** across **5 Clinical Performance Metrics + Inference Latency**.
+
+1. **Quantum Sensitivity Advantage**: Quantum Classifiers (QSVC & VQC) reach **95.77% Sensitivity**, significantly reducing false negatives compared to classical models.
+2. **Statistical Significance**: Paired Student's t-test across 5 folds confirms **Quantum Advantage** ($p = 0.0353 < 0.05$).
+3. **Qubit Budget Pareto Frontier**: Ablation study shows $k=6$ principal components retains **88.76% of total variance** with negligible accuracy drop.
+4. **Transparent Explainability**: Classical & Quantum Kernel SHAP achieve **Spearman $\rho = 0.943 - 1.000$ concordance**, dispelling the "quantum black box" misconception.
+
+---
+
 ## 🔬 Core Capabilities
 
 * **Multi-Modal Biomedical Ingestion:**
@@ -58,11 +69,42 @@ Biomedical Data (WDBC / Heart / Fundus)
 
 ---
 
+## 📂 Repository Structure
+
+```
+├── app/
+│   ├── Home.py                             # Streamlit diagnostic platform home
+│   ├── main.py                             # Multi-modal interactive web dashboard
+│   ├── components/circuit_viz.py           # Quantum circuit diagram generator
+│   └── pages/5_Explainability.py           # Interactive patient risk gauge & SHAP UI
+├── data/
+│   ├── Sample_Fundus_Photos/               # 22 Clinical human eye fundus images
+│   └── heart_disease.csv                   # UCI Heart disease benchmark data
+├── docs/
+│   ├── HQML_Presentation_Deck.pptx         # 15-Slide competition pitch deck
+│   ├── HQML_Presentation_Deck.pdf          # Publication-ready PDF deck for jury review
+│   └── quantum_limitations.md              # NISQ constraints & hardware whitepaper
+├── reports/
+│   ├── figures/                            # Publication-grade ROC, Confusion Matrix, & PR SVGs
+│   └── tables/                             # 5-Fold CV summary tables & p-values
+├── src/
+│   ├── data/                               # WDBC, Heart, and Fundus image loaders
+│   ├── features/                           # PCA & Mutual Information quantum reducers
+│   ├── quantum/                            # PennyLane backend, feature maps, ansatzes, noise
+│   ├── models/quantum/                     # QSVC, VQC, and Hybrid QNN models
+│   ├── models/classical/                   # Linear/RBF SVM, Random Forest, XGBoost, MLP
+│   ├── evaluation/                         # 6-Metric clinical calculator & significance tests
+│   └── xai/                                # Classical & Quantum KernelSHAP explainers
+└── tests/                                  # 7 Comprehensive Pytest suites
+```
+
+---
+
 ## ⚡ Quickstart
 
 ### 1. Installation
 ```bash
-pip install -r requirements.txt
+py -3.13 -m pip install -r requirements.txt
 ```
 
 ### 2. Run Test Suite

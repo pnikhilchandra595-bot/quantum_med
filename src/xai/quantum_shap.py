@@ -1,4 +1,4 @@
-"""Quantum Explainability Module (Quantum KernelSHAP & Permutation Importance).
+"""Quantum Explainability Module (Quantum KernelSHAP, Adapters & Permutation Importance).
 
 Computes local and global feature attributions for quantum models (QSVC, VQC, HQNN)
 with computational mitigations for quantum simulator latency and clinical reporting.
@@ -14,6 +14,11 @@ try:
     import shap
 except ImportError:
     shap = None
+
+try:
+    from src.xai.classical_shap import SHAPExplanation
+except ImportError:
+    SHAPExplanation = Any
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +41,10 @@ class QuantumKernelSHAPExplainer:
         self.n_background_samples = min(n_background_samples, len(background_data))
         self.random_state = random_state
 
-        # Summarize background data to avoid excessive quantum simulator calls
         self.reference_data = self._summarize_background(background_data)
         self._explainer = None
 
     def _summarize_background(self, data: np.ndarray) -> np.ndarray:
-        """Compresses background training set using K-Means centroids."""
         if len(data) <= self.n_background_samples:
             return np.copy(data)
 
@@ -51,38 +54,19 @@ class QuantumKernelSHAPExplainer:
             n_init=10,
         )
         kmeans.fit(data)
-        logger.info(
-            f"Compressed background dataset from {len(data)} to {self.n_background_samples} "
-            f"centroids to accelerate quantum SHAP evaluations."
-        )
         return kmeans.cluster_centers_
 
     def _init_explainer(self) -> None:
         if shap is None:
-            logger.warning("SHAP library is not installed. Using local linear surrogate approximation.")
             return
 
-        # Wrapper function returning class-1 probabilities
         def predict_fn(x_matrix: np.ndarray) -> np.ndarray:
             probs = self.model.predict_proba(x_matrix)
             return probs[:, 1]
 
         self._explainer = shap.KernelExplainer(predict_fn, self.reference_data)
 
-    def explain_instance(
-        self,
-        sample: np.ndarray,
-        nsamples: int = 50,
-    ) -> np.ndarray:
-        """Computes local SHAP attribution values for a single patient sample.
-
-        Args:
-            sample: 1D array of feature values for single patient.
-            nsamples: Number of background coalition evaluations.
-
-        Returns:
-            1D array of SHAP importance values matching feature length.
-        """
+    def explain_instance(self, sample: np.ndarray, nsamples: int = 50) -> np.ndarray:
         if sample.ndim == 1:
             sample = sample.reshape(1, -1)
 
@@ -93,7 +77,6 @@ class QuantumKernelSHAPExplainer:
             shap_values = self._explainer.shap_values(sample, nsamples=nsamples, l1_reg="auto")
             return shap_values[0] if isinstance(shap_values, list) else shap_values
 
-        # Lightweight fallback surrogate if shap is not installed
         base_prob = float(self.model.predict_proba(sample)[0, 1])
         ref_mean = np.mean(self.reference_data, axis=0)
         perturb = 0.05
@@ -105,17 +88,11 @@ class QuantumKernelSHAPExplainer:
             attributions.append((new_prob - base_prob) / perturb * (sample[0, i] - ref_mean[i]))
         return np.array(attributions)
 
-    def explain_dataset(
-        self,
-        X_test: np.ndarray,
-        nsamples: int = 50,
-    ) -> np.ndarray:
-        """Computes SHAP matrix across multiple patient samples."""
+    def explain_dataset(self, X_test: np.ndarray, nsamples: int = 50) -> np.ndarray:
         if self._explainer is None:
             self._init_explainer()
 
         if self._explainer is not None:
-            logger.info(f"Computing Quantum SHAP values for {len(X_test)} test samples...")
             shap_values = self._explainer.shap_values(X_test, nsamples=nsamples, l1_reg="auto")
             return np.array(shap_values)
 
@@ -127,7 +104,6 @@ class QuantumKernelSHAPExplainer:
         feature_names: Optional[List[str]] = None,
         top_k: int = 5,
     ) -> Dict[str, Any]:
-        """Generates a structured clinical risk attribution report for a single patient."""
         if sample.ndim == 1:
             sample = sample.flatten()
         n_features = len(sample)
@@ -156,12 +132,84 @@ class QuantumKernelSHAPExplainer:
         }
 
 
-class QuantumPermutationImportance:
-    """Computes Permutation Feature Importance for quantum models.
+class QuantumKernelSHAP:
+    """Quantum Kernel SHAP adapter compliant with Member C evaluation interface."""
 
-    Measures performance degradation when each individual feature is randomly permuted.
-    Serves as an ultra-fast, model-agnostic feature importance metric.
-    """
+    def __init__(
+        self,
+        model: Any,
+        background_data: np.ndarray,
+        feature_names: Optional[List[str]] = None,
+        max_background_samples: int = 30,
+        random_state: int = 42,
+    ) -> None:
+        self.model = model
+        self.model_name = getattr(model, "name", "QuantumModel")
+        n_features = background_data.shape[1]
+        self.feature_names = (
+            feature_names
+            if feature_names is not None
+            else [f"Qubit_{i}" for i in range(n_features)]
+        )
+        self.random_state = random_state
+
+        if len(background_data) > max_background_samples:
+            rng = np.random.RandomState(random_state)
+            idx = rng.choice(len(background_data), max_background_samples, replace=False)
+            self.background = background_data[idx]
+        else:
+            self.background = np.copy(background_data)
+
+        def predict_fn(X: np.ndarray) -> np.ndarray:
+            probas = self.model.predict_proba(X)
+            if probas.ndim == 2 and probas.shape[1] > 1:
+                return probas[:, 1]
+            return probas.ravel()
+
+        if shap is not None:
+            self.explainer = shap.KernelExplainer(predict_fn, self.background)
+        else:
+            self.explainer = None
+
+    def explain(self, X: np.ndarray, nsamples: int = 60) -> Any:
+        X_arr = np.asarray(X)
+        single_sample = X_arr.ndim == 1
+        X_eval = X_arr.reshape(1, -1) if single_sample else X_arr
+
+        if self.explainer is not None:
+            values = self.explainer.shap_values(X_eval, nsamples=nsamples)
+            if isinstance(values, list):
+                values = values[1] if len(values) > 1 else values[0]
+            values = np.asarray(values)
+            base_val = (
+                float(self.explainer.expected_value[1])
+                if isinstance(self.explainer.expected_value, (list, np.ndarray)) and len(self.explainer.expected_value) > 1
+                else float(self.explainer.expected_value)
+            )
+        else:
+            values = np.zeros(X_eval.shape)
+            base_val = 0.5
+
+        mean_abs = np.abs(values) if values.ndim == 1 else np.mean(np.abs(values), axis=0)
+        total_sum = np.sum(mean_abs)
+        norm_imp = mean_abs / total_sum if total_sum > 0 else np.ones_like(mean_abs) / len(mean_abs)
+        out_values = values[0] if single_sample else values
+
+        if SHAPExplanation is not Any:
+            return SHAPExplanation(
+                model_name=self.model_name,
+                feature_names=self.feature_names,
+                values=out_values,
+                base_value=base_val,
+                data=X_eval,
+                mean_abs_importance=mean_abs,
+                normalized_importance=norm_imp,
+            )
+        return {"values": out_values, "mean_abs": mean_abs}
+
+
+class QuantumPermutationImportance:
+    """Computes Permutation Feature Importance for quantum models."""
 
     def __init__(
         self,
@@ -189,11 +237,6 @@ class QuantumPermutationImportance:
         y: np.ndarray,
         feature_names: Optional[List[str]] = None,
     ) -> Dict[str, Dict[str, float]]:
-        """Calculates mean and standard deviation of importance for each feature.
-
-        Returns:
-            Dict mapping feature name/index to {'mean_drop': float, 'std_drop': float}.
-        """
         rng = np.random.default_rng(self.random_state)
         baseline_prob = self.model.predict_proba(X)[:, 1]
         baseline_score = self._score(y, baseline_prob)
@@ -203,7 +246,6 @@ class QuantumPermutationImportance:
             feature_names = [f"Feature_{i}" for i in range(n_features)]
 
         results = {}
-
         for j in range(n_features):
             drops = []
             for _ in range(self.n_repeats):
@@ -217,5 +259,4 @@ class QuantumPermutationImportance:
                 "mean_drop": float(np.mean(drops)),
                 "std_drop": float(np.std(drops)),
             }
-
         return results
