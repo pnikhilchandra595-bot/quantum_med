@@ -1,7 +1,7 @@
 import React from 'react';
 import { Atom, Moon, Sun } from 'lucide-react';
 
-export type TabId = 'arch' | 'fundus' | 'body' | 'multimodal' | 'bloch' | 'whatif' | 'noise' | 'radar' | 'dossier';
+export type TabId = 'arch' | 'fundus' | 'body' | 'multimodal' | 'whatif' | 'noise' | 'radar' | 'dossier';
 
 interface NavigationProps {
   activeTab: TabId;
@@ -21,7 +21,6 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'fundus', label: 'Retinal Fundus (22 Photos)', icon: '👁️' },
     { id: 'body', label: 'Whole-Body Multi-Organ', icon: '🩺' },
     { id: 'multimodal', label: 'Multi-Modal Studio (ECG/MRI/OCT)', icon: '📡' },
-    { id: 'bloch', label: '3D Bloch Sphere Studio', icon: '🌐' },
     { id: 'whatif', label: 'What-If Patient Simulator', icon: '🎛️' },
     { id: 'noise', label: 'Noise Stress-Tester', icon: '⚡' },
     { id: 'radar', label: '5-Axis Clinical Radar', icon: '🕸️' },
