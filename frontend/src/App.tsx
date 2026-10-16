@@ -4,6 +4,7 @@ import type { TabId } from './components/Navigation';
 import { TelemetryHUD } from './components/TelemetryHUD';
 import { ArchitectureView } from './components/ArchitectureView';
 import { RetinaViewer } from './components/RetinaViewer';
+import { WholeBodyExplorer } from './components/WholeBodyExplorer';
 import { BlochSphere3D } from './components/BlochSphere3D';
 import { WhatIfSimulator } from './components/WhatIfSimulator';
 import { NoiseStressTester } from './components/NoiseStressTester';
@@ -41,6 +42,7 @@ export const App: React.FC = () => {
       <main role="main">
         {activeTab === 'arch' && <ArchitectureView />}
         {activeTab === 'fundus' && <RetinaViewer />}
+        {activeTab === 'body' && <WholeBodyExplorer />}
         {activeTab === 'bloch' && <BlochSphere3D />}
         {activeTab === 'whatif' && <WhatIfSimulator />}
         {activeTab === 'noise' && <NoiseStressTester />}
