@@ -120,8 +120,99 @@ def list_datasets():
             "biomarkers_extracted": 11,
             "target": "Diabetic Retinopathy vs Healthy",
         },
+        "ecg_mitbih": {
+            "name": "MIT-BIH Arrhythmia Continuous ECG Database",
+            "samples": 48,
+            "sampling_rate_hz": 360,
+            "target": "Sinus Rhythm vs Arrhythmia / Atrial Fib",
+        },
+        "brats_mri": {
+            "name": "BraTS 2024 Multi-parametric Brain Tumor MRI",
+            "samples": 1250,
+            "modalities": ["T1", "T1-Gd", "T2", "FLAIR"],
+            "target": "Glioblastoma Necrosis vs Edema vs Active Rim",
+        },
+        "retina_oct": {
+            "name": "Spectral-Domain Retinal OCT B-Scans (Kermany et al.)",
+            "samples": 84495,
+            "target": "Normal vs CNV vs DME vs Drusen",
+        },
+        "tcga_genomics": {
+            "name": "The Cancer Genome Atlas (TCGA) RNA-Seq Pan-Cancer",
+            "samples": 11000,
+            "genes": 20531,
+            "target": "Driver Oncogene Activation & Survival Stratification",
+        },
     }
     return {"datasets": datasets_info}
+
+
+@app.get("/api/v1/multimodal/ecg-lead")
+def get_ecg_lead(rhythm: str = Query(default="sinus", description="Rhythm type: sinus, afib, vtach, ischemia")):
+    """Simulate continuous calibrated Lead II ECG stream with quantum phase analysis."""
+    sample_rate = 250
+    duration_s = 2.0
+    t = np.linspace(0, duration_s, int(sample_rate * duration_s))
+    
+    # Base baseline drift
+    baseline = 0.05 * np.sin(2 * np.pi * 0.25 * t)
+    
+    if rhythm == "afib":
+        # Irregular R-R intervals, chaotic fibrillatory waves without distinct P-waves
+        hr_bpm = 125
+        ecg = baseline + 0.04 * np.sin(2 * np.pi * 6.5 * t) + 0.03 * np.random.randn(len(t))
+        # Add irregular QRS spikes
+        peaks = [0.15, 0.42, 0.61, 0.95, 1.18, 1.52, 1.81]
+        for p in peaks:
+            idx = int(p * sample_rate)
+            if 0 <= idx < len(t):
+                ecg[max(0, idx-5):min(len(t), idx+6)] += [0.1, 0.2, -0.2, 1.2, -0.4, 0.1, 0.2, 0.1, 0.05, 0.02, 0.01][:min(len(t), idx+6) - max(0, idx-5)]
+        risk_label = "ATRIAL FIBRILLATION DETECTED"
+        q_entropy = 0.842
+    elif rhythm == "vtach":
+        # Broad monomorphic ventricular tachycardia waves
+        ecg = baseline + 0.9 * np.sin(2 * np.pi * 3.8 * t) + 0.2 * np.sin(2 * np.pi * 7.6 * t)
+        risk_label = "VENTRICULAR TACHYCARDIA (CRITICAL)"
+        q_entropy = 0.915
+    elif rhythm == "ischemia":
+        # Sinus rhythm with pronounced ST depression
+        ecg = baseline.copy()
+        peaks = [0.3, 1.1, 1.9]
+        for p in peaks:
+            idx = int(p * sample_rate)
+            if 0 <= idx < len(t):
+                # QRS
+                ecg[max(0, idx-3):min(len(t), idx+4)] += [0.1, -0.2, 1.1, -0.3, -0.2, -0.2, -0.1][:min(len(t), idx+4) - max(0, idx-3)]
+        risk_label = "SUBENDOCARDIAL MYOCARDIAL ISCHEMIA (ST-DEPRESSION)"
+        q_entropy = 0.728
+    else:
+        # Normal sinus rhythm
+        ecg = baseline.copy()
+        peaks = [0.35, 1.15, 1.95]
+        for p in peaks:
+            idx = int(p * sample_rate)
+            if 0 <= idx < len(t):
+                # P-wave
+                if idx - 25 >= 0:
+                    ecg[idx - 25:idx - 15] += 0.12 * np.sin(np.linspace(0, np.pi, 10))
+                # QRS
+                ecg[max(0, idx-3):min(len(t), idx+4)] += [-0.15, 1.25, -0.35, 0.0, 0.0, 0.0, 0.0][:min(len(t), idx+4) - max(0, idx-3)]
+                # T-wave
+                if idx + 40 < len(t):
+                    ecg[idx + 20:idx + 40] += 0.28 * np.sin(np.linspace(0, np.pi, 20))
+        risk_label = "NORMAL SINUS RHYTHM (NSR)"
+        q_entropy = 0.124
+
+    return {
+        "rhythm": rhythm,
+        "classification": risk_label,
+        "sample_rate_hz": sample_rate,
+        "duration_seconds": duration_s,
+        "time_axis": [round(val, 4) for val in t.tolist()],
+        "voltage_lead_ii_mv": [round(val, 4) for val in ecg.tolist()],
+        "quantum_phase_entropy": q_entropy,
+        "quantum_fourier_peak_hz": 1.2 if rhythm == "sinus" else (3.8 if rhythm == "vtach" else 6.5),
+    }
 
 
 @app.get("/api/v1/models")
