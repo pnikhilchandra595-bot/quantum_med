@@ -163,8 +163,7 @@ def predict(req: PredictionRequest):
 
     # Load small reference training data to fit the model quickly
     if req.dataset.lower() == "fundus":
-        data = load_fundus_dataset()
-        X_train, y_train = data.X, data.y
+        X_train, y_train, _, _ = load_fundus_dataset()
         # Pad or slice features to match n_qubits
         X_train = X_train[:, :req.n_qubits]
     else:
