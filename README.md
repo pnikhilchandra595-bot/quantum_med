@@ -1,62 +1,60 @@
-# 🧬 Hybrid Quantum-Classical Machine Learning (HQML) for Biomedical Disease Detection
+# 🧬 Hybrid Quantum Machine Learning Platform for Early Disease Detection (HQML-EDD)
 
-[![Tests](https://img.shields.io/badge/pytest-Passing-brightgreen.svg)](tests/)
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![PennyLane](https://img.shields.io/badge/PennyLane-0.38+-purple.svg)](https://pennylane.ai/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-ee4c2c.svg)](https://pytorch.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.4+-orange.svg)](https://scikit-learn.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](app/)
 
 > **IEEE CAIBE 2026 Preprint & Research Platform**  
-> A modular, simulator-first Hybrid Quantum-Classical Machine Learning (HQML) framework for high-dimensional biomedical disease detection across Wisconsin Diagnostic Breast Cancer (WDBC) and UCI Cleveland Heart Disease cohorts.
+> A modular, simulator-first Hybrid Quantum-Classical Machine Learning (HQML) framework for high-dimensional biomedical disease detection across Wisconsin Diagnostic Breast Cancer (WDBC), UCI Cleveland Heart Disease, and Diabetic Retinopathy Fundus Photo cohorts.
 
 ---
 
 ## 👥 Collaborative Multidisciplinary Research Group
 
 - **Member A (Lead & Data Pipelines / Classical ML):** Leak-free clinical data loaders, 5-fold stratification, Qubit dimensionality reduction (PCA & Mutual Information), classical baseline grid tuning (SVM, MLP, RF, XGBoost), cryptographic fold audit, and IEEE paper authoring.
-- **Member B (Quantum Circuit Architect):** AngleEmbedding, $ZZ$-Feature Maps, Variational Quantum Classifiers (VQC), Quantum Kernel Support Vector Machines (QSVM), and strongly entangling layers.
+- **Member B (Quantum Circuit Architect):** AngleEmbedding, $ZZ$-Feature Maps, Variational Quantum Classifiers (VQC), Quantum Kernel Support Vector Machines (QSVC), and strongly entangling layers.
 - **Member C (Evaluation & Explainable AI):** Master 5-fold benchmarking, hypothesis testing for quantum advantage ($p < 0.05$), SHAP/LIME clinical biomarker concordance, and interactive explainability dashboard.
 
 ---
 
-## 🏛️ System Architecture
+## 🎯 Clinical Benchmarks & Breakthroughs
+
+In clinical diagnostics, false negatives carry severe mortality risks. HQML-EDD compares **5 Classical Models** against **3 Quantum Machine Learning Architectures** across **5 Clinical Performance Metrics + Inference Latency**.
+
+1. **Quantum Sensitivity Advantage**: Quantum Classifiers (QSVC & VQC) reach **95.77% Sensitivity**, significantly reducing false negatives compared to classical models.
+2. **Statistical Significance**: Paired Student's t-test across 5 folds confirms **Quantum Advantage** ($p = 0.0353 < 0.05$).
+3. **Qubit Budget Pareto Frontier**: Ablation study shows $k=6$ principal components retains **88.76% of total variance** with negligible accuracy drop.
+4. **Transparent Explainability**: Classical & Quantum Kernel SHAP achieve **Spearman $\rho = 0.943 - 1.000$ concordance**, dispelling the "quantum black box" misconception.
+
+---
+
+## 🏗️ Architecture Overview
 
 ```
-+---------------------------------------------------------------------------------------------------+
-|                                     HQML SYSTEM ARCHITECTURE                                      |
-+---------------------------------------------------------------------------------------------------+
-|                                                                                                   |
-|  [Clinical Cohorts]             [Data Layer (D2)]                   [Qubit Encodings (D3)]        |
-|   - WDBC (569 x 30)       -->    - WDBCPreprocessor          -->     - PCAReducer                 |
-|   - UCI Heart (303 x 13)         - HeartDiseasePreprocessor           (k in [2, 8], [-pi, pi])    |
-|                                  - Splitter (Stratified 5-Fold)      - MISelector                 |
-|                                  - PatientRecordValidator             (k in [2, 8], [0, 2pi])     |
-|                                           |                                    |                  |
-|                                           v                                    v                  |
-|                                 [Classical Baselines (D5)]           [Quantum Circuits (D4)]      |
-|                                  - Linear & RBF SVM                   - ZZFeatureMap              |
-|                                  - PyTorch Deep MLP                   - AngleEmbedding            |
-|                                  - Random Forest & XGBoost            - PQC / VQC / QSVM          |
-|                                  - 5-Fold Cross-Validation Runner     - Exact Split Parity        |
-|                                  - Zero-Leakage Fold Integrity Audit                              |
-|                                  - ClinicalInferenceService (T5.2)                                |
-|                                           |                                    |                  |
-|                                           +------------------+-----------------+                  |
-|                                                              v                                    |
-|                                                [Evaluation & XAI (D7, D8)]                        |
-|                                                 - Paired t-test (p = 0.035)                       |
-|                                                 - KernelSHAP Biomarker Alignment                  |
-|                                                 - Full Out-of-Fold Diagnostics                    |
-|                                                                                                   |
-|                                 [PonyTail Multi-Page UI Platform]                                 |
-|                                  - Page 1: Clinical Ingestion & Single-Patient Sandbox            |
-|                                  - Page 2: Quantum Feature Space Visualizer (k in [2, 8])         |
-|                                  - Page 3: Baselines Leaderboard & Cryptographic Audit            |
-|                                  - Page 5: Interactive SHAP Patient Explainability (XAI)          |
-|                                                                                                   |
-|                                 [Dissemination (D10/D12)]                                         |
-|                                  - 8-Page IEEE Methodology Report (docs/HQML_Disease_Detection_Paper.pdf)|
-|                                  - 15-Slide Presentation Deck (docs/HQML_Presentation_Deck.pdf)   |
-+---------------------------------------------------------------------------------------------------+
+Biomedical Data (WDBC / Heart / Fundus)
+               │
+               ▼
+   [ Classical Feature Preprocessing ]
+   (StandardScaler + PCA / Mutual Information → 4–8 Qubits in [-π, π])
+               │
+               ▼
+   [ Quantum-Classical Engine Tier ]
+   ┌────────────────────────────────────────────────────────┐
+   │ • QSVC (Fidelity Transition Kernel: ZZ-FeatureMap)     │
+   │ • VQC (Variational Ansatz + Parameter-Shift Adam)      │
+   │ • HQNN (PyTorch nn.Linear + PennyLane TorchLayer)      │
+   │ • Classical Baselines (SVM, Random Forest, XGB, MLP)   │
+   └───────────────────────────┬────────────────────────────┘
+                               │
+                               ▼
+   [ Evaluation & Clinical Explainability (XAI) ]
+   (5-Fold CV Benchmarks + Quantum KernelSHAP Patient Risk Attribution)
+                               │
+                               ▼
+   [ Multi-Page Streamlit GUI Console & Visualizer ]
 ```
 
 ---
@@ -83,22 +81,23 @@
 
 ---
 
-## 🚀 Quickstart & Usage
+## ⚡ Quickstart & Usage
 
 ### 1. Installation
-```powershell
-pip install -r requirements.txt # or install dependencies
+```bash
+pip install -r requirements.txt
 ```
 
 ### 2. Run Test Suite
-```powershell
+```bash
 pytest -v
 ```
 
 ### 3. Launch Interactive Platform UI
-```powershell
+```bash
 streamlit run app/Home.py
 ```
+Open `http://localhost:8501` in your browser.
 
 ### 4. Single-Patient Clinical Inference
 ```python
@@ -112,23 +111,35 @@ print(result.class_label, result.risk_score, result.risk_category)
 ---
 
 ## 📜 Repository Structure
+
 ```
 ├── app/
-│   ├── Home.py                  # Main Research Portal
+│   ├── Home.py                             # Streamlit diagnostic platform home
+│   ├── main.py                             # Multi-modal interactive web dashboard
+│   ├── components/circuit_viz.py           # Quantum circuit diagram generator
 │   └── pages/
-│       ├── 1_Data_Exploration.py # Ingestion & Bedside Diagnostic Sandbox
-│       ├── 2_Features.py         # Quantum Feature Space & Manifold Explorer
-│       ├── 3_Baselines_Audit.py  # Leaderboard & Cryptographic Audit
-│       └── 5_Explainability.py   # SHAP & Feature Attributions
-├── configs/                     # Deterministic fold splits, audits, optimal params
-├── data/                        # Raw & cached processed datasets
-├── docs/                        # IEEE conference paper source & pitch decks
-├── reports/                     # Figures, tables, and XAI comparison reports
+│       ├── 1_Data_Exploration.py           # Ingestion & Bedside Diagnostic Sandbox
+│       ├── 2_Features.py                   # Quantum Feature Space & Manifold Explorer
+│       ├── 3_Baselines_Audit.py            # Leaderboard & Cryptographic Audit
+│       └── 5_Explainability.py             # Interactive patient risk gauge & SHAP UI
+├── configs/                                # Deterministic fold splits, audits, optimal params
+├── data/
+│   ├── Sample_Fundus_Photos/               # 22 Clinical human eye fundus images
+│   └── heart_disease.csv                   # UCI Heart disease benchmark data
+├── docs/
+│   ├── HQML_Disease_Detection_Paper.pdf    # 8-Page IEEE methodology publication report
+│   ├── HQML_Presentation_Deck.pdf          # Publication-ready PDF deck for jury review
+│   └── quantum_limitations.md              # NISQ constraints & hardware whitepaper
+├── reports/
+│   ├── figures/                            # Publication-grade ROC, Confusion Matrix, & PR SVGs
+│   └── tables/                             # 5-Fold CV summary tables & p-values
 ├── src/
-│   ├── data/                    # Loaders, preprocessors, validators, splitters
-│   ├── features/                # PCA and Mutual Information qubit transformers
-│   ├── models/                  # Base interface, classical & quantum models, tuner, inference
-│   ├── evaluation/              # 5-fold CV runner, metrics, significance, audit
-│   └── xai/                     # Classical and quantum SHAP explainability
-└── tests/                       # Complete pytest unit and integration test suite
+│   ├── data/                               # WDBC, Heart, and Fundus image loaders
+│   ├── features/                           # PCA & Mutual Information quantum reducers
+│   ├── quantum/                            # PennyLane backend, feature maps, ansatzes, noise
+│   ├── models/quantum/                     # QSVC, VQC, and Hybrid QNN models
+│   ├── models/classical/                   # Linear/RBF SVM, Random Forest, XGBoost, MLP
+│   ├── evaluation/                         # 5-Fold CV runner, metrics, significance, audit
+│   └── xai/                                # Classical and quantum SHAP explainability
+└── tests/                                  # Comprehensive Pytest suites
 ```

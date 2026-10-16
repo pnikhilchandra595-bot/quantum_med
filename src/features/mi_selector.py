@@ -1,4 +1,4 @@
-"""Mutual Information Feature Selector for Biomedical Datasets.
+"""Mutual Information Feature Selector for Biomedical Datasets and Quantum Circuits.
 
 Module: src.features.mi_selector
 Owner: Member A (Lead / Classical ML & Feature Engineering Lead)
@@ -8,7 +8,7 @@ Task: T2.2
 
 from __future__ import annotations
 
-from typing import Optional, Union, List, Dict, Tuple
+from typing import Optional, Union, List, Dict, Tuple, Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -27,6 +27,7 @@ class MISelector(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         k: int = 4,
+        scale_to_pi: bool = True,
         feature_range: Tuple[float, float] = (-np.pi, np.pi),
         scale_to_2pi: Optional[bool] = None,
         random_state: int = 42,
@@ -37,6 +38,7 @@ class MISelector(BaseEstimator, TransformerMixin):
 
         Args:
             k: Target number of biomedical features to select (typically k in [4, 8]).
+            scale_to_pi: If True and feature_range not explicitly altered, scales to [-pi, pi].
             feature_range: Target numerical bounds for scaling, defaults to [-pi, pi].
             scale_to_2pi: Optional backwards-compatibility flag. If explicitly True,
                 sets feature_range to (0.0, 2*pi).
@@ -46,6 +48,7 @@ class MISelector(BaseEstimator, TransformerMixin):
                 column names.
         """
         self.k = k
+        self.scale_to_pi = scale_to_pi
         self.feature_range = feature_range
         self.scale_to_2pi = scale_to_2pi
         self.random_state = random_state
@@ -65,6 +68,11 @@ class MISelector(BaseEstimator, TransformerMixin):
 
         self.scaler: Optional[MinMaxScaler] = None
         self.is_fitted_: bool = False
+
+        # Compatibility attributes
+        self.scores_: Optional[np.ndarray] = None
+        self.selected_indices: Optional[List[int]] = None
+        self.scaler_: Optional[MinMaxScaler] = None
 
     def fit(
         self,
@@ -87,42 +95,41 @@ class MISelector(BaseEstimator, TransformerMixin):
             X_arr = X.to_numpy(dtype=np.float64)
         else:
             X_arr = np.asarray(X, dtype=np.float64)
-            if feature_names is not None and len(feature_names) == X_arr.shape[1]:
+            if feature_names is not None:
                 self.feature_names_in_ = list(feature_names)
             else:
-                self.feature_names_in_ = [f"feature_{i}" for i in range(X_arr.shape[1])]
+                self.feature_names_in_ = [f"Feature_{i}" for i in range(X_arr.shape[1])]
 
         y_arr = np.asarray(y, dtype=np.int64).ravel()
 
-        if X_arr.shape[0] != len(y_arr):
-            raise ValueError(f"Sample count mismatch: X has {X_arr.shape[0]}, y has {len(y_arr)}")
+        if len(self.feature_names_in_) != X_arr.shape[1]:
+            raise ValueError("Length of feature_names must match number of columns in X.")
 
-        if np.isnan(X_arr).any() or np.isnan(y_arr).any():
-            raise ValueError("Input data contains unhandled NaN values.")
+        n_samples, n_features = X_arr.shape
+        actual_k = min(self.k, n_features)
 
-        k_eff = min(max(1, self.k), X_arr.shape[1])
-
-        # Compute continuous-discrete mutual information
+        # Compute mutual information scores using KSG continuous estimator
         scores = mutual_info_classif(
             X_arr,
             y_arr,
             n_neighbors=self.n_neighbors,
             random_state=self.random_state,
         )
+        self.scores_ = scores
+        self.feature_scores_ = {name: float(scores[i]) for i, name in enumerate(self.feature_names_in_)}
 
-        self.feature_scores_ = {
-            name: float(score) for name, score in zip(self.feature_names_in_, scores)
-        }
-
-        # Rank indices in descending order of information content
+        # Rank features descending by mutual information
         ranked_indices = np.argsort(scores)[::-1]
-        self.selected_indices_ = ranked_indices[:k_eff].tolist()
-        self.selected_feature_names_ = [self.feature_names_in_[idx] for idx in self.selected_indices_]
+        self.selected_indices_ = [int(idx) for idx in ranked_indices[:actual_k]]
+        self.selected_indices = self.selected_indices_
+        self.selected_feature_names_ = [self.feature_names_in_[i] for i in self.selected_indices_]
 
-        # Fit MinMaxScaler on selected features to target angle range [-pi, pi]
-        selected_sub = X_arr[:, self.selected_indices_]
-        self.scaler = MinMaxScaler(feature_range=self.effective_feature_range_, clip=True)
-        self.scaler.fit(selected_sub)
+        # Fit MinMaxScaler if scaling is enabled
+        if self.scale_to_pi or self.effective_feature_range_ is not None:
+            X_subset = X_arr[:, self.selected_indices_]
+            self.scaler = MinMaxScaler(feature_range=self.effective_feature_range_)
+            self.scaler.fit(X_subset)
+            self.scaler_ = self.scaler
 
         self.is_fitted_ = True
         return self
@@ -132,50 +139,37 @@ class MISelector(BaseEstimator, TransformerMixin):
         X: Union[np.ndarray, pd.DataFrame],
         as_frame: Optional[bool] = None,
     ) -> Union[np.ndarray, pd.DataFrame]:
-        """Extract top k features and rescale to [-pi, pi].
+        """Extract top k features and rescale into quantum feature angle range.
 
         Args:
             X: Input feature matrix of shape (n_samples, n_features).
-            as_frame: If True (or if return_dataframe=True), returns a pd.DataFrame
-                with original clinical column names preserved for SHAP explainability.
+            as_frame: If True, returns a pandas DataFrame with original clinical feature names.
 
         Returns:
             Transformed feature matrix of shape (n_samples, k).
         """
-        if not self.is_fitted_ or self.scaler is None:
+        if not self.is_fitted_ or not self.selected_indices_:
             raise RuntimeError("MISelector must be fitted before calling transform.")
 
         if isinstance(X, pd.DataFrame):
-            # Check if all selected columns are present by name
-            if set(self.selected_feature_names_).issubset(set(X.columns)):
-                selected_sub = X[self.selected_feature_names_].to_numpy(dtype=np.float64)
-            elif X.shape[1] == len(self.feature_names_in_):
-                selected_sub = X.to_numpy(dtype=np.float64)[:, self.selected_indices_]
-            else:
-                raise ValueError(
-                    f"Expected DataFrame with features matching training dimension {len(self.feature_names_in_)}, "
-                    f"got {X.shape[1]}"
-                )
+            X_arr = X.to_numpy(dtype=np.float64)
         else:
             X_arr = np.asarray(X, dtype=np.float64)
-            if X_arr.shape[1] != len(self.feature_names_in_):
-                raise ValueError(
-                    f"Feature dimension mismatch: expected {len(self.feature_names_in_)}, got {X_arr.shape[1]}"
-                )
-            selected_sub = X_arr[:, self.selected_indices_]
 
-        scaled_sub = self.scaler.transform(selected_sub)
-        scaled_sub = np.clip(
-            scaled_sub,
-            self.effective_feature_range_[0],
-            self.effective_feature_range_[1],
-        )
+        X_selected = X_arr[:, self.selected_indices_]
 
-        should_return_frame = as_frame if as_frame is not None else self.return_dataframe
-        if should_return_frame:
-            return pd.DataFrame(scaled_sub, columns=self.selected_feature_names_)
+        if self.scaler is not None:
+            X_scaled = self.scaler.transform(X_selected)
+            low, high = self.effective_feature_range_
+            X_scaled = np.clip(X_scaled, low, high)
+        else:
+            X_scaled = X_selected
 
-        return scaled_sub
+        return_as_df = as_frame if as_frame is not None else self.return_dataframe
+        if return_as_df:
+            return pd.DataFrame(X_scaled, columns=self.selected_feature_names_)
+
+        return X_scaled
 
     def fit_transform(
         self,
@@ -230,3 +224,16 @@ class MISelector(BaseEstimator, TransformerMixin):
                 }
             )
         return pd.DataFrame(rows)
+
+    def get_ranking_summary(self) -> List[Dict[str, Any]]:
+        """Returns sorted list of features with their mutual information scores."""
+        summary = []
+        for rank, idx in enumerate(self.selected_indices_):
+            summary.append({
+                "rank": rank + 1,
+                "feature_index": int(idx),
+                "feature_name": self.selected_feature_names_[rank]
+                if rank < len(self.selected_feature_names_) else f"Col_{idx}",
+                "mi_score": float(self.scores_[idx]) if self.scores_ is not None else 0.0,
+            })
+        return summary

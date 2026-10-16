@@ -1,1 +1,1 @@
-"""HQML test package."""
+"""Test package for HQML platform."""

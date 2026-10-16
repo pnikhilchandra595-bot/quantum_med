@@ -8,7 +8,7 @@ Task: T2.1
 
 from __future__ import annotations
 
-from typing import Optional, Union, List, Tuple
+from typing import Optional, Union, List, Tuple, Dict, Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -54,13 +54,18 @@ class PCAReducer(BaseEstimator, TransformerMixin):
         self.wrap_periodic = wrap_periodic
         self.random_state = random_state
 
-        self.k_effective_: int = 4
+        self.k_effective_: int = 4 if not isinstance(n_components, int) else n_components
         self.pca: Optional[PCA] = None
         self.scaler: Optional[MinMaxScaler] = None
         self.explained_variance_ratio_: np.ndarray = np.array([], dtype=np.float64)
         self.cumulative_explained_variance_: np.ndarray = np.array([], dtype=np.float64)
         self.feature_names_in_: Optional[List[str]] = None
         self.is_fitted_: bool = False
+
+        # Member B & C compatibility attributes
+        self.pca_: Optional[PCA] = None
+        self.scaler_: Optional[MinMaxScaler] = None
+        self.cumulative_variance_: float = 0.0
 
     def fit(
         self,
@@ -130,6 +135,12 @@ class PCAReducer(BaseEstimator, TransformerMixin):
             self.scaler.fit(pca_out)
 
         self.is_fitted_ = True
+
+        # Synchronize compatibility attributes
+        self.pca_ = self.pca
+        self.scaler_ = self.scaler
+        self.cumulative_variance_ = float(self.cumulative_explained_variance_[-1]) if len(self.cumulative_explained_variance_) > 0 else 0.0
+
         return self
 
     def transform(
@@ -159,11 +170,9 @@ class PCAReducer(BaseEstimator, TransformerMixin):
         if self.scale_to_pi and self.scaler is not None:
             if self.wrap_periodic:
                 # Direct linear mapping without hard clipping, wrapped modulo 2*pi
-                # z' = 2*pi * (z - min) / (max - min) - pi
                 data_range = np.where(self.scaler.data_range_ == 0, 1.0, self.scaler.data_range_)
                 norm = (pca_out - self.scaler.data_min_) / data_range
                 scaled_raw = norm * (2.0 * np.pi) - np.pi
-                # Wrap periodically into [-pi, pi]
                 scaled_out = (scaled_raw + np.pi) % (2.0 * np.pi) - np.pi
             else:
                 scaled_out = self.scaler.transform(pca_out)
@@ -225,3 +234,13 @@ class PCAReducer(BaseEstimator, TransformerMixin):
         if not self.is_fitted_:
             raise RuntimeError("PCAReducer must be fitted.")
         return float(self.cumulative_explained_variance_[-1])
+
+    def get_variance_summary(self) -> Dict[str, Any]:
+        """Returns explained variance details."""
+        if not self.is_fitted_:
+            raise RuntimeError("PCAReducer must be fitted.")
+        return {
+            "n_components": self.k_effective_,
+            "explained_variance_ratio": self.explained_variance_ratio_.tolist(),
+            "total_explained_variance": float(self.cumulative_explained_variance_[-1]) if len(self.cumulative_explained_variance_) > 0 else 0.0,
+        }

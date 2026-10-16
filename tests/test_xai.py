@@ -1,7 +1,8 @@
 """Unit tests for Explainability (XAI) adapters and SHAP explainers."""
 
-import numpy as np
 import pytest
+
+pytest.importorskip("shap")
 from sklearn.datasets import make_classification
 
 from src.models.classical.trees import RandomForestModel, XGBoostModel

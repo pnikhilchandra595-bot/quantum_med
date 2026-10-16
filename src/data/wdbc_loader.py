@@ -1,7 +1,7 @@
 """Wisconsin Diagnostic Breast Cancer (WDBC) Dataset Loader and Preprocessor.
 
 Module: src.data.wdbc_loader
-Owner: Member A (Lead / Classical ML Engineer)
+Owner: Member A & Member B
 Deliverable: D2 (Data Ingestion)
 """
 
@@ -52,35 +52,30 @@ class WDBCPreprocessor(BaseEstimator, TransformerMixin):
 
 def load_wdbc(
     as_frame: bool = False,
-    return_feature_names: bool = False,
+    return_feature_names: Optional[bool] = None,
     scale: bool = False,
     cache_processed: bool = True,
     cache_path: str = "data/processed/wdbc_scaled.npy",
-) -> Union[Tuple[np.ndarray, np.ndarray], Tuple[pd.DataFrame, pd.Series], Tuple[Union[np.ndarray, pd.DataFrame], Union[np.ndarray, pd.Series], List[str]]]:
+) -> Union[
+    Tuple[np.ndarray, np.ndarray],
+    Tuple[pd.DataFrame, pd.Series],
+    Tuple[Union[np.ndarray, pd.DataFrame], Union[np.ndarray, pd.Series], List[str]],
+]:
     """Load and format the Wisconsin Diagnostic Breast Cancer (WDBC) dataset.
 
     Steps:
-    1. Fetch WDBC from sklearn.datasets.load_breast_cancer (standard WDBC repository source).
+    1. Fetch WDBC from sklearn.datasets.load_breast_cancer.
     2. Convert 30 continuous features into float64 NumPy array or Pandas DataFrame.
     3. Binary encode targets: Malignant (M) -> 1, Benign (B) -> 0.
-       Note: sklearn assigns 0=malignant, 1=benign, so we map 0 -> 1 and 1 -> 0.
-    4. Optionally fit StandardScaler and verify zero mean (~0) and unit variance (~1).
-    5. Save processed data cache to data/processed/wdbc_scaled.npy.
-
-    Args:
-        as_frame: If True, returns pandas DataFrame and Series. Otherwise returns NumPy arrays.
-        return_feature_names: If True, also returns list of 30 feature names.
-        scale: If True, returns standard-scaled features. (Note: for CV, use WDBCPreprocessor on folds).
-        cache_processed: If True, saves scaled array to cache_path.
-        cache_path: Destination path for scaled array cache.
+    4. Optionally fit StandardScaler.
+    5. Save processed data cache.
 
     Returns:
         (X, y) or (X, y, feature_names) where X has shape (569, 30) and y has values {0, 1}.
     """
     raw_data = load_breast_cancer()
     X_raw: np.ndarray = np.asarray(raw_data.data, dtype=np.float64)
-    # sklearn target: 0 = 'malignant', 1 = 'benign'
-    # Project requirement: Malignant (M) -> 1, Benign (B) -> 0
+    # sklearn target: 0 = 'malignant', 1 = 'benign' -> map: 1 = Malignant, 0 = Benign
     y_raw: np.ndarray = (raw_data.target == 0).astype(np.int64)
     feature_names: List[str] = [str(f) for f in raw_data.feature_names]
 
@@ -112,6 +107,9 @@ def load_wdbc(
         X_out = X_final
         y_out = y_raw
 
-    if return_feature_names:
+    # If return_feature_names is explicitly set, use it; otherwise, return 3 items if scale=True (Member B compatibility)
+    should_return_names = return_feature_names if return_feature_names is not None else scale
+
+    if should_return_names:
         return X_out, y_out, feature_names
     return X_out, y_out

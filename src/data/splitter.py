@@ -68,6 +68,30 @@ def generate_stratified_folds(
     return folds
 
 
+def get_stratified_folds(
+    X: np.ndarray,
+    y: np.ndarray,
+    n_splits: int = 5,
+    seed: int = 42,
+) -> List[Tuple[np.ndarray, np.ndarray]]:
+    """Generates stratified cross-validation train/validation index splits.
+
+    Args:
+        X: Feature matrix.
+        y: Binary target labels.
+        n_splits: Number of folds (default: 5).
+        seed: Random seed for reproducibility.
+
+    Returns:
+        List of tuples (train_indices, val_indices).
+    """
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    folds = []
+    for train_idx, val_idx in skf.split(X, y):
+        folds.append((train_idx, val_idx))
+    return folds
+
+
 def save_folds_to_json(folds: List[SplitFold], file_path: Union[str, Path]) -> Path:
     """Save folds to a JSON configuration file."""
     path = Path(file_path)
@@ -126,10 +150,10 @@ def get_folds(
     clean_name = dataset_name.lower().strip()
     if clean_name in ["wdbc", "breast_cancer"]:
         json_file = Path(configs_dir) / "folds_wdbc.json"
-        load_fn = lambda: load_wdbc()[1]
+        load_fn = lambda: load_wdbc(scale=False, return_feature_names=False)[1]
     elif clean_name in ["heart", "heart_disease", "cleveland"]:
         json_file = Path(configs_dir) / "folds_heart.json"
-        load_fn = lambda: load_heart_disease()[1]
+        load_fn = lambda: load_heart_disease(scale=False, return_feature_names=False)[1]
     else:
         raise ValueError(f"Unknown dataset name '{dataset_name}'. Supported: 'wdbc', 'heart'")
 

@@ -8,8 +8,9 @@ Tests:
 import os
 import importlib
 from pathlib import Path
-import numpy as np
 import pytest
+
+pytest.importorskip("pptx")
 from pptx import Presentation
 
 explain_page = importlib.import_module("app.pages.5_Explainability")

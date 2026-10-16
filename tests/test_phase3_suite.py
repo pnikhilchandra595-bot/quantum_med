@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+pytest.importorskip("seaborn")
+
 from src.evaluation.benchmark import run_benchmark, get_all_models
 from src.evaluation.significance import run_significance_tests, compute_cohens_d
 from src.evaluation.plots import (
