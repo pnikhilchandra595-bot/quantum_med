@@ -1,10 +1,21 @@
 """T3.3: Master 5-Fold Cross-Validation Benchmark Suite.
 
-Orchestrates automated 5-fold cross-validation across all 7 models:
+Orchestrates automated 5-fold cross-validation across all models:
 - Classical: Linear SVM, RBF SVM, Random Forest, XGBoost, MLP
 - Quantum: QSVC, VQC, HQNN (ZZ-FeatureMap & Variational Circuits)
 
-Logs mean and standard deviation for all 6 metrics under identical splits.
+Enforces STRICT ZERO DATA LEAKAGE:
+Within every fold, scaling and PCA feature reduction are fitted strictly
+on the training partition and transformed onto unseen test folds.
+
+Logs mean and standard deviation for:
+- Accuracy
+- Sensitivity (Recall)
+- Specificity
+- F1-Score
+- ROC-AUC
+- Wall-clock inference latency per sample (ms)
+
 Saves master summary CSV to reports/tables/benchmark_results.csv.
 """
 
@@ -16,9 +27,9 @@ import json
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
-from sklearn.decomposition import PCA
 
 from src.data.loader import load_dataset
+from src.data.feature_reduction import PCAReducer
 from src.evaluation.metrics import calculate_metrics, measure_inference_latency
 from src.models.classical.trees import RandomForestModel, XGBoostModel
 from src.models.classical.svm import LinearSVMModel, RBFSVMModel
@@ -27,14 +38,14 @@ from src.models.quantum.quantum_models import QSVCModel, VQCModel, HQNNModel
 
 
 def get_all_models(random_state: int = 42) -> List[Any]:
-    """Instantiate fresh instances of all 7 classical and quantum models."""
+    """Instantiate fresh instances of all classical and quantum models."""
     return [
         LinearSVMModel(random_state=random_state),
         RBFSVMModel(random_state=random_state),
         RandomForestModel(n_estimators=100, max_depth=5, random_state=random_state),
         XGBoostModel(learning_rate=0.05, n_estimators=100, max_depth=4, random_state=random_state),
-        MLPModel(hidden_layer_sizes=(32, 16), max_iter=500, random_state=random_state),
-        QSVCModel(C=1.0, random_state=random_state),
+        MLPModel(hidden_layer_sizes=(32, 16), max_iter=600, random_state=random_state),
+        QSVCModel(C=2.0, random_state=random_state),
         VQCModel(n_qubits=6, n_layers=3, random_state=random_state),
         HQNNModel(latent_qubits=4, random_state=random_state),
     ]
@@ -51,7 +62,7 @@ def run_benchmark(
     """Run automated 5-fold cross validation benchmark suite across all models.
 
     Args:
-        dataset_name: Name of dataset (default: 'wdbc').
+        dataset_name: Name of dataset (default: 'wdbc', supports 'heart').
         n_splits: Number of CV folds (default: 5).
         n_components: PCA dimension matching optimal qubit cutoff (default: 6).
         quick: If True, uses 3 splits and faster training for rapid verification.
@@ -63,11 +74,8 @@ def run_benchmark(
         folds_data: Dictionary mapping model_name -> metric_name -> list of fold values.
     """
     actual_splits = 3 if quick else n_splits
-    X, y, feature_names, target_names = load_dataset(dataset_name)
-
-    # Dimensionality reduction to optimal qubit dimension k=6 (retaining >88% variance)
-    pca = PCA(n_components=n_components, random_state=random_state)
-    X_reduced = pca.fit_transform(X)
+    X_raw, y, feature_names, target_names = load_dataset(dataset_name, scaled=False)
+    n_samples, n_features = X_raw.shape
 
     skf = StratifiedKFold(n_splits=actual_splits, shuffle=True, random_state=random_state)
 
@@ -81,13 +89,18 @@ def run_benchmark(
 
     print(f"\n=========================================================================")
     print(f"  HQML Master Benchmark: {actual_splits}-Fold Cross-Validation on {dataset_name.upper()}")
-    print(f"  Features: {n_components} Qubits/PCs (Retaining {np.sum(pca.explained_variance_ratio_)*100:.2f}% Variance)")
+    print(f"  Zero Data Leakage: PCA + Scaler fit strictly per training fold (k={n_components} Qubits)")
     print(f"=========================================================================\n")
 
-    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X_reduced, y), 1):
-        X_train, X_test = X_reduced[train_idx], X_reduced[test_idx]
+    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X_raw, y), 1):
+        X_tr_raw, X_te_raw = X_raw[train_idx], X_raw[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
         print(f"[*] Processing Fold {fold_idx}/{actual_splits}...")
+
+        # ZERO DATA LEAKAGE: Dimensionality reduction fit ONLY on training fold
+        reducer = PCAReducer(n_components=n_components, random_state=random_state + fold_idx)
+        X_train = reducer.fit_transform(X_tr_raw)
+        X_test = reducer.transform(X_te_raw)
 
         # Fresh model instances per fold
         models_in_fold = get_all_models(random_state + fold_idx)

@@ -4,6 +4,8 @@ Generates high-resolution publication-quality SVG and PNG figures:
 1. Multi-model ROC curves with shaded +/- 1 standard deviation bands.
 2. Side-by-side Confusion Matrices for Classical SVM vs QSVC (highlighting False Negatives).
 3. Precision-Recall curves highlighting clinical minority class (malignant) detection.
+
+All evaluations enforce STRICT ZERO DATA LEAKAGE across folds.
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -21,9 +23,9 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 from sklearn.model_selection import StratifiedKFold
-from sklearn.decomposition import PCA
 
 from src.data.loader import load_dataset
+from src.data.feature_reduction import PCAReducer
 from src.models.classical.svm import RBFSVMModel, LinearSVMModel
 from src.models.classical.trees import RandomForestModel, XGBoostModel
 from src.models.classical.mlp import MLPModel
@@ -56,24 +58,22 @@ def plot_multi_model_roc_curves(
     n_splits: int = 5,
     random_state: int = 42,
 ) -> Path:
-    """Generate multi-model ROC curves with shaded +/- 1 standard deviation bands."""
+    """Generate multi-model ROC curves with shaded +/- 1 standard deviation bands under zero leakage."""
     set_publication_style()
-    X, y, _, _ = load_dataset("wdbc")
-    pca = PCA(n_components=6, random_state=random_state)
-    X_k = pca.fit_transform(X)
+    X_raw, y, _, _ = load_dataset("wdbc", scaled=False)
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     mean_fpr = np.linspace(0, 1, 100)
 
     model_configs = [
-        ("QSVC (Quantum)", lambda: QSVCModel(C=2.0, random_state=random_state), "#9c27b0", "-", 2.5),
-        ("HQNN (Hybrid)", lambda: HQNNModel(random_state=random_state), "#3f51b5", "-", 2.2),
-        ("VQC (Quantum)", lambda: VQCModel(random_state=random_state), "#00bcd4", "--", 2.0),
-        ("RBF SVM", lambda: RBFSVMModel(random_state=random_state), "#e65100", "-.", 1.8),
-        ("Linear SVM", lambda: LinearSVMModel(random_state=random_state), "#f57c00", ":", 1.8),
-        ("Random Forest", lambda: RandomForestModel(random_state=random_state), "#2e7d32", "--", 1.8),
-        ("XGBoost", lambda: XGBoostModel(random_state=random_state), "#c2185b", ":", 1.8),
-        ("MLP", lambda: MLPModel(random_state=random_state), "#455a64", "-.", 1.8),
+        ("QSVC (Quantum)", lambda rs: QSVCModel(C=2.0, random_state=rs), "#9c27b0", "-", 2.5),
+        ("HQNN (Hybrid)", lambda rs: HQNNModel(random_state=rs), "#3f51b5", "-", 2.2),
+        ("VQC (Quantum)", lambda rs: VQCModel(random_state=rs), "#00bcd4", "--", 2.0),
+        ("RBF SVM", lambda rs: RBFSVMModel(random_state=rs), "#e65100", "-.", 1.8),
+        ("Linear SVM", lambda rs: LinearSVMModel(random_state=rs), "#f57c00", ":", 1.8),
+        ("Random Forest", lambda rs: RandomForestModel(random_state=rs), "#2e7d32", "--", 1.8),
+        ("XGBoost", lambda rs: XGBoostModel(random_state=rs), "#c2185b", ":", 1.8),
+        ("MLP", lambda rs: MLPModel(random_state=rs), "#455a64", "-.", 1.8),
     ]
 
     fig, ax = plt.subplots(figsize=(8.5, 7), dpi=300)
@@ -82,11 +82,17 @@ def plot_multi_model_roc_curves(
         tprs = []
         aucs = []
 
-        for train_idx, test_idx in skf.split(X_k, y):
-            m = model_fn()
-            m.fit(X_k[train_idx], y[train_idx])
-            probas = m.predict_proba(X_k[test_idx])[:, 1]
-            fpr, tpr, _ = roc_curve(y[test_idx], probas)
+        for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X_raw, y), 1):
+            # ZERO DATA LEAKAGE: Fit PCA exclusively on training fold
+            reducer = PCAReducer(n_components=6, random_state=random_state + fold_idx)
+            X_tr = reducer.fit_transform(X_raw[train_idx])
+            X_te = reducer.transform(X_raw[test_idx])
+            y_tr, y_te = y[train_idx], y[test_idx]
+
+            m = model_fn(random_state + fold_idx)
+            m.fit(X_tr, y_tr)
+            probas = m.predict_proba(X_te)[:, 1]
+            fpr, tpr, _ = roc_curve(y_te, probas)
             interp_tpr = np.interp(mean_fpr, fpr, tpr)
             interp_tpr[0] = 0.0
             tprs.append(interp_tpr)
@@ -126,7 +132,7 @@ def plot_multi_model_roc_curves(
     ax.set_xlabel("1 - Specificity (False Positive Rate)", fontweight="bold")
     ax.set_ylabel("Sensitivity / Recall (True Positive Rate)", fontweight="bold")
     ax.set_title(
-        "5-Fold Cross-Validation ROC Curves\nClassical vs Hybrid Quantum Classifiers (WDBC)",
+        "5-Fold Cross-Validation ROC Curves (Zero Data Leakage)\nClassical vs Hybrid Quantum Classifiers (WDBC)",
         fontweight="bold",
         pad=12,
     )
@@ -145,16 +151,17 @@ def plot_side_by_side_confusion_matrices(
     fig_dir: Path,
     random_state: int = 42,
 ) -> Path:
-    """Generate side-by-side Confusion Matrices for Classical SVM vs QSVC."""
+    """Generate side-by-side Confusion Matrices for Classical SVM vs QSVC under zero data leakage."""
     set_publication_style()
-    X, y, _, _ = load_dataset("wdbc")
-    pca = PCA(n_components=6, random_state=random_state)
-    X_k = pca.fit_transform(X)
+    X_raw, y, _, _ = load_dataset("wdbc", scaled=False)
 
-    # 80/20 stratified split for clear comparative test set demonstration
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
-    train_idx, test_idx = next(skf.split(X_k, y))
-    X_tr, X_te = X_k[train_idx], X_k[test_idx]
+    train_idx, test_idx = next(skf.split(X_raw, y))
+
+    # ZERO DATA LEAKAGE: Fit strictly on train split
+    reducer = PCAReducer(n_components=6, random_state=random_state)
+    X_tr = reducer.fit_transform(X_raw[train_idx])
+    X_te = reducer.transform(X_raw[test_idx])
     y_tr, y_te = y[train_idx], y[test_idx]
 
     # Classical RBF SVM
@@ -168,9 +175,6 @@ def plot_side_by_side_confusion_matrices(
     cm_qsvc = confusion_matrix(y_te, y_pred_qsvc)
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), dpi=300)
-
-    # Labels: 0 = Benign, 1 = Malignant
-    labels = ["Benign\n(True Neg)", "Malignant\n(True Pos)"]
 
     # SVM Subplot
     sns.heatmap(
@@ -236,15 +240,17 @@ def plot_precision_recall_curves(
     fig_dir: Path,
     random_state: int = 42,
 ) -> Path:
-    """Generate Precision-Recall curves highlighting clinical minority class detection."""
+    """Generate Precision-Recall curves highlighting clinical minority class detection under zero leakage."""
     set_publication_style()
-    X, y, _, _ = load_dataset("wdbc")
-    pca = PCA(n_components=6, random_state=random_state)
-    X_k = pca.fit_transform(X)
+    X_raw, y, _, _ = load_dataset("wdbc", scaled=False)
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
-    train_idx, test_idx = next(skf.split(X_k, y))
-    X_tr, X_te = X_k[train_idx], X_k[test_idx]
+    train_idx, test_idx = next(skf.split(X_raw, y))
+
+    # ZERO DATA LEAKAGE: Fit strictly on train split
+    reducer = PCAReducer(n_components=6, random_state=random_state)
+    X_tr = reducer.fit_transform(X_raw[train_idx])
+    X_te = reducer.transform(X_raw[test_idx])
     y_tr, y_te = y[train_idx], y[test_idx]
 
     models = [
@@ -271,7 +277,7 @@ def plot_precision_recall_curves(
             label=f"{name} (AP = {ap:.3f})",
         )
 
-    # Baseline: positive prevalence
+    # Baseline prevalence
     prevalence = np.mean(y_te)
     ax.axhline(prevalence, color="#888888", linestyle=":", label=f"Baseline Prevalence ({prevalence*100:.1f}%)")
 
