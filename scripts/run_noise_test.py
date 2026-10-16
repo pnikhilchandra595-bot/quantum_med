@@ -5,7 +5,15 @@ and Classical models under increasing levels of simulated biomedical sensor nois
 """
 
 import os
+import sys
 import argparse
+from pathlib import Path
+
+# Ensure workspace root is in sys.path
+WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVC

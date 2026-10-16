@@ -62,6 +62,8 @@ class QuantumKernelSHAPExplainer:
 
         def predict_fn(x_matrix: np.ndarray) -> np.ndarray:
             probs = self.model.predict_proba(x_matrix)
+            if len(probs) != len(x_matrix):
+                probs = np.tile(probs[0], (len(x_matrix), 1))
             return probs[:, 1]
 
         self._explainer = shap.KernelExplainer(predict_fn, self.reference_data)

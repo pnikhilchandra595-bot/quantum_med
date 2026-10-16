@@ -82,7 +82,7 @@ class VariationalQuantumClassifier(BaseEstimator, ClassifierMixin):
         self._qnode = circuit
 
     def _sigmoid(self, z: np.ndarray) -> np.ndarray:
-        return 1.0 / (1.0 + np.exp(-np.clip(z, -15.0, 15.0)))
+        return 1.0 / (1.0 + pnp.exp(-pnp.clip(z, -15.0, 15.0)))
 
     def _cost(self, weights, bias, X_batch, y_batch):
         """Binary cross-entropy loss function over a mini-batch."""

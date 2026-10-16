@@ -45,7 +45,7 @@ class _HybridQNNModule(nn.Module if nn is not None else object):
         self.dev = dev_manager.get_device()
         wires = list(range(n_qubits))
 
-        @qml.qnode(self.dev, interface="torch", diff_method="parameter-shift")
+        @qml.qnode(self.dev, interface="torch", diff_method="backprop")
         def qnode(inputs, weights):
             # 1. Feature encoding into quantum states
             qml.AngleEmbedding(features=inputs, wires=wires, rotation="Y")
