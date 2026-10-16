@@ -308,8 +308,8 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 96.7,
         classicalConfidence: 87.2,
         imageSrc: '/clinical_scans/cardiac_echo_pathological.jpg',
-        scanType: 'Stanford EchoNet Apical 4-Chamber Echocardiogram',
-        heatmapHotspot: 'radial-gradient(circle at 48% 38%, rgba(239, 68, 68, 0.9) 0%, rgba(245, 158, 11, 0.65) 25%, transparent 60%)',
+        scanType: 'High-Resolution 2D Apical 4-Chamber Echocardiogram (Ventricular Wall Akinesis)',
+        heatmapHotspot: 'radial-gradient(circle at 48% 42%, rgba(239, 68, 68, 0.9) 0%, rgba(245, 158, 11, 0.65) 25%, transparent 60%)',
         primaryVitals: [
           { label: 'Resting BP', value: '158 mm Hg' },
           { label: 'Serum Chol', value: '286 mg/dL' },
@@ -325,7 +325,7 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 98.9,
         classicalConfidence: 94.0,
         imageSrc: '/clinical_scans/cardiac_echo_normal.jpg',
-        scanType: 'Stanford EchoNet Apical 4-Chamber Normal Echocardiogram',
+        scanType: 'High-Resolution 2D Transthoracic 4-Chamber Normal Echocardiogram',
         heatmapHotspot: 'radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.3) 0%, transparent 50%)',
         primaryVitals: [
           { label: 'Resting BP', value: '118 mm Hg' },
@@ -368,8 +368,8 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 97.2,
         classicalConfidence: 86.4,
         imageSrc: '/clinical_scans/renal_ct_carcinoma.jpg',
-        scanType: 'Abdominal Contrast-Enhanced CT Renal Cortical View',
-        heatmapHotspot: 'radial-gradient(circle at 70% 50%, rgba(239, 68, 68, 0.9) 0%, rgba(245, 158, 11, 0.65) 28%, transparent 60%)',
+        scanType: 'High-Definition Contrast-Enhanced CT Renal Cortical & Pelvic View',
+        heatmapHotspot: 'radial-gradient(circle at 62% 48%, rgba(239, 68, 68, 0.9) 0%, rgba(245, 158, 11, 0.65) 28%, transparent 60%)',
         primaryVitals: [
           { label: 'Serum Creatinine', value: '2.8 mg/dL' },
           { label: 'Blood Urea', value: '72 mg/dL' },
@@ -385,7 +385,7 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 99.1,
         classicalConfidence: 93.7,
         imageSrc: '/clinical_scans/renal_ct_normal.jpg',
-        scanType: 'Abdominal Contrast-Enhanced CT Normal Bilateral Kidneys',
+        scanType: 'High-Definition Contrast-Enhanced CT Normal Bilateral Kidneys',
         heatmapHotspot: 'radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.3) 0%, transparent 50%)',
         primaryVitals: [
           { label: 'Serum Creatinine', value: '0.9 mg/dL' },
@@ -428,8 +428,8 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 97.8,
         classicalConfidence: 89.2,
         imageSrc: '/clinical_scans/breast_mammogram_malignant.jpg',
-        scanType: 'NYU GLAM Digital Screening Mammogram (CC View)',
-        heatmapHotspot: 'radial-gradient(circle at 55% 42%, rgba(239, 68, 68, 0.92) 0%, rgba(245, 158, 11, 0.7) 28%, transparent 65%)',
+        scanType: 'Ultra-High-Resolution Digital Screening Mammogram (Spiculation & Microcalcification)',
+        heatmapHotspot: 'radial-gradient(circle at 48% 46%, rgba(239, 68, 68, 0.92) 0%, rgba(245, 158, 11, 0.7) 28%, transparent 65%)',
         primaryVitals: [
           { label: 'Radius Mean', value: '17.9 μm' },
           { label: 'Texture Mean', value: '24.2' },
@@ -445,7 +445,7 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 99.3,
         classicalConfidence: 95.1,
         imageSrc: '/clinical_scans/breast_mammogram_normal.jpg',
-        scanType: 'NYU GLAM Digital Screening Mammogram (MLO View)',
+        scanType: 'Ultra-High-Resolution Digital Screening Mammogram (Normal Fibroglandular Tissue)',
         heatmapHotspot: 'radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.3) 0%, transparent 50%)',
         primaryVitals: [
           { label: 'Radius Mean', value: '11.4 μm' },
@@ -488,8 +488,8 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 95.9,
         classicalConfidence: 81.0,
         imageSrc: '/clinical_scans/liver_ct_cirrhosis.jpg',
-        scanType: 'Abdominal Axial CT Upper Hepatic Parenchymal Cut',
-        heatmapHotspot: 'radial-gradient(circle at 35% 50%, rgba(239, 68, 68, 0.88) 0%, rgba(245, 158, 11, 0.65) 28%, transparent 60%)',
+        scanType: 'High-Resolution Abdominal Axial Contrast CT (Hepatic Parenchymal Lesions)',
+        heatmapHotspot: 'radial-gradient(circle at 45% 48%, rgba(239, 68, 68, 0.88) 0%, rgba(245, 158, 11, 0.65) 28%, transparent 60%)',
         primaryVitals: [
           { label: 'Total Bilirubin', value: '3.6 mg/dL' },
           { label: 'ALP', value: '298 IU/L' },
@@ -505,7 +505,7 @@ const ORGAN_SYSTEMS: OrganSystem[] = [
         quantumConfidence: 98.4,
         classicalConfidence: 92.1,
         imageSrc: '/clinical_scans/liver_ct_normal.jpg',
-        scanType: 'Abdominal Axial CT Normal Liver Parenchyma Cut',
+        scanType: 'High-Resolution Abdominal Axial Contrast CT (Homogeneous Liver Parenchyma)',
         heatmapHotspot: 'radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.3) 0%, transparent 50%)',
         primaryVitals: [
           { label: 'Total Bilirubin', value: '0.7 mg/dL' },
