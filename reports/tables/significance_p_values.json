@@ -1,0 +1,399 @@
+{
+  "metric_evaluated": "sensitivity",
+  "hypotheses": {
+    "H0": "Quantum Sensitivity == Classical Sensitivity",
+    "H1": "Quantum Sensitivity > Classical Sensitivity (Quantum Advantage, alpha=0.05)"
+  },
+  "comparisons": {
+    "QSVC_vs_Random_Forest": {
+      "quantum_model": "QSVC",
+      "classical_model": "Random Forest",
+      "quantum_scores": [
+        0.9767,
+        0.8837,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8372,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0283,
+      "cohens_d": 0.9181,
+      "paired_t_statistic": 2.053,
+      "paired_t_p_value_onesided": 0.05466,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "QSVC_vs_Linear_SVM": {
+      "quantum_model": "QSVC",
+      "classical_model": "Linear SVM",
+      "quantum_scores": [
+        0.9767,
+        0.8837,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0142,
+      "cohens_d": 1.0953,
+      "paired_t_statistic": 2.4491,
+      "paired_t_p_value_onesided": 0.03526,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": true,
+      "decision": "Reject H0 -> Quantum Advantage Confirmed"
+    },
+    "QSVC_vs_RBF_SVM": {
+      "quantum_model": "QSVC",
+      "classical_model": "RBF SVM",
+      "quantum_scores": [
+        0.9767,
+        0.8837,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0142,
+      "cohens_d": 1.0953,
+      "paired_t_statistic": 2.4491,
+      "paired_t_p_value_onesided": 0.03526,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": true,
+      "decision": "Reject H0 -> Quantum Advantage Confirmed"
+    },
+    "QSVC_vs_XGBoost": {
+      "quantum_model": "QSVC",
+      "classical_model": "XGBoost",
+      "quantum_scores": [
+        0.9767,
+        0.8837,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        1.0,
+        0.8837,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0144,
+      "cohens_d": 0.4003,
+      "paired_t_statistic": 0.8951,
+      "paired_t_p_value_onesided": 0.21066,
+      "wilcoxon_statistic": 9.0,
+      "wilcoxon_p_value_onesided": 0.25,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "QSVC_vs_MLP": {
+      "quantum_model": "QSVC",
+      "classical_model": "MLP",
+      "quantum_scores": [
+        0.9767,
+        0.8837,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.9535,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": -0.0044,
+      "cohens_d": -0.1153,
+      "paired_t_statistic": -0.2578,
+      "paired_t_p_value_onesided": 0.59537,
+      "wilcoxon_statistic": 7.0,
+      "wilcoxon_p_value_onesided": 0.5,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "VQC_vs_Random_Forest": {
+      "quantum_model": "VQC",
+      "classical_model": "Random Forest",
+      "quantum_scores": [
+        0.9767,
+        0.907,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8372,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.033,
+      "cohens_d": 0.925,
+      "paired_t_statistic": 2.0684,
+      "paired_t_p_value_onesided": 0.05371,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "VQC_vs_Linear_SVM": {
+      "quantum_model": "VQC",
+      "classical_model": "Linear SVM",
+      "quantum_scores": [
+        0.9767,
+        0.907,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0188,
+      "cohens_d": 0.9642,
+      "paired_t_statistic": 2.156,
+      "paired_t_p_value_onesided": 0.04866,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": true,
+      "decision": "Reject H0 -> Quantum Advantage Confirmed"
+    },
+    "VQC_vs_RBF_SVM": {
+      "quantum_model": "VQC",
+      "classical_model": "RBF SVM",
+      "quantum_scores": [
+        0.9767,
+        0.907,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0188,
+      "cohens_d": 0.9642,
+      "paired_t_statistic": 2.156,
+      "paired_t_p_value_onesided": 0.04866,
+      "wilcoxon_statistic": 12.0,
+      "wilcoxon_p_value_onesided": 0.125,
+      "h1_accepted_p_lt_0_05": true,
+      "decision": "Reject H0 -> Quantum Advantage Confirmed"
+    },
+    "VQC_vs_XGBoost": {
+      "quantum_model": "VQC",
+      "classical_model": "XGBoost",
+      "quantum_scores": [
+        0.9767,
+        0.907,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        1.0,
+        0.8837,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.019,
+      "cohens_d": 0.5422,
+      "paired_t_statistic": 1.2124,
+      "paired_t_p_value_onesided": 0.14604,
+      "wilcoxon_statistic": 11.0,
+      "wilcoxon_p_value_onesided": 0.1875,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "VQC_vs_MLP": {
+      "quantum_model": "VQC",
+      "classical_model": "MLP",
+      "quantum_scores": [
+        0.9767,
+        0.907,
+        0.9286,
+        1.0,
+        0.9762
+      ],
+      "classical_scores": [
+        0.9767,
+        0.9535,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0002,
+      "cohens_d": 0.0077,
+      "paired_t_statistic": 0.0173,
+      "paired_t_p_value_onesided": 0.49353,
+      "wilcoxon_statistic": 7.0,
+      "wilcoxon_p_value_onesided": 0.5,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "HQNN_vs_Random_Forest": {
+      "quantum_model": "HQNN",
+      "classical_model": "Random Forest",
+      "quantum_scores": [
+        0.9767,
+        0.9302,
+        0.881,
+        1.0,
+        0.9524
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8372,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0234,
+      "cohens_d": 0.5801,
+      "paired_t_statistic": 1.2971,
+      "paired_t_p_value_onesided": 0.13217,
+      "wilcoxon_statistic": 9.0,
+      "wilcoxon_p_value_onesided": 0.25,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "HQNN_vs_Linear_SVM": {
+      "quantum_model": "HQNN",
+      "classical_model": "Linear SVM",
+      "quantum_scores": [
+        0.9767,
+        0.9302,
+        0.881,
+        1.0,
+        0.9524
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0092,
+      "cohens_d": 0.2597,
+      "paired_t_statistic": 0.5806,
+      "paired_t_p_value_onesided": 0.29631,
+      "wilcoxon_statistic": 5.0,
+      "wilcoxon_p_value_onesided": 0.5,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "HQNN_vs_RBF_SVM": {
+      "quantum_model": "HQNN",
+      "classical_model": "RBF SVM",
+      "quantum_scores": [
+        0.9767,
+        0.9302,
+        0.881,
+        1.0,
+        0.9524
+      ],
+      "classical_scores": [
+        0.9767,
+        0.8605,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0092,
+      "cohens_d": 0.2597,
+      "paired_t_statistic": 0.5806,
+      "paired_t_p_value_onesided": 0.29631,
+      "wilcoxon_statistic": 5.0,
+      "wilcoxon_p_value_onesided": 0.5,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "HQNN_vs_XGBoost": {
+      "quantum_model": "HQNN",
+      "classical_model": "XGBoost",
+      "quantum_scores": [
+        0.9767,
+        0.9302,
+        0.881,
+        1.0,
+        0.9524
+      ],
+      "classical_scores": [
+        1.0,
+        0.8837,
+        0.8571,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": 0.0094,
+      "cohens_d": 0.354,
+      "paired_t_statistic": 0.7916,
+      "paired_t_p_value_onesided": 0.23645,
+      "wilcoxon_statistic": 9.0,
+      "wilcoxon_p_value_onesided": 0.25,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    },
+    "HQNN_vs_MLP": {
+      "quantum_model": "HQNN",
+      "classical_model": "MLP",
+      "quantum_scores": [
+        0.9767,
+        0.9302,
+        0.881,
+        1.0,
+        0.9524
+      ],
+      "classical_scores": [
+        0.9767,
+        0.9535,
+        0.9048,
+        1.0,
+        0.9524
+      ],
+      "mean_difference": -0.0094,
+      "cohens_d": -0.7302,
+      "paired_t_statistic": -1.6328,
+      "paired_t_p_value_onesided": 0.91108,
+      "wilcoxon_statistic": 0.0,
+      "wilcoxon_p_value_onesided": 1.0,
+      "h1_accepted_p_lt_0_05": false,
+      "decision": "Fail to reject H0 -> Parity/Comparable"
+    }
+  }
+}

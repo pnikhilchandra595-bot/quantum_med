@@ -1,0 +1,176 @@
+{
+  "component_labels": [
+    "PC1 (Qubit 0)",
+    "PC2 (Qubit 1)",
+    "PC3 (Qubit 2)",
+    "PC4 (Qubit 3)",
+    "PC5 (Qubit 4)",
+    "PC6 (Qubit 5)"
+  ],
+  "feature_importances": {
+    "Random Forest": [
+      0.6815,
+      0.0848,
+      0.1275,
+      0.0539,
+      0.0263,
+      0.026
+    ],
+    "Classical SVM": [
+      0.6874,
+      0.115,
+      0.0809,
+      0.062,
+      0.0394,
+      0.0152
+    ],
+    "Quantum QSVC": [
+      0.6835,
+      0.1069,
+      0.0756,
+      0.0624,
+      0.0424,
+      0.0291
+    ],
+    "Quantum VQC": [
+      0.6589,
+      0.1274,
+      0.0825,
+      0.0525,
+      0.0483,
+      0.0305
+    ]
+  },
+  "top_features": {
+    "Random Forest": [
+      [
+        "PC1 (Qubit 0)",
+        0.681489621975618
+      ],
+      [
+        "PC3 (Qubit 2)",
+        0.1275333432656976
+      ],
+      [
+        "PC2 (Qubit 1)",
+        0.0848248538727149
+      ],
+      [
+        "PC4 (Qubit 3)",
+        0.05393197115238373
+      ],
+      [
+        "PC5 (Qubit 4)",
+        0.026260218313884046
+      ]
+    ],
+    "Classical SVM": [
+      [
+        "PC1 (Qubit 0)",
+        0.6873837676014715
+      ],
+      [
+        "PC2 (Qubit 1)",
+        0.11502445614718944
+      ],
+      [
+        "PC3 (Qubit 2)",
+        0.08091280618247423
+      ],
+      [
+        "PC4 (Qubit 3)",
+        0.06203381839163133
+      ],
+      [
+        "PC5 (Qubit 4)",
+        0.039417794239883376
+      ]
+    ],
+    "Quantum QSVC": [
+      [
+        "PC1 (Qubit 0)",
+        0.6835263698840277
+      ],
+      [
+        "PC2 (Qubit 1)",
+        0.10692977653673537
+      ],
+      [
+        "PC3 (Qubit 2)",
+        0.07557288021105264
+      ],
+      [
+        "PC4 (Qubit 3)",
+        0.06241855112805833
+      ],
+      [
+        "PC5 (Qubit 4)",
+        0.0424380259272664
+      ]
+    ],
+    "Quantum VQC": [
+      [
+        "PC1 (Qubit 0)",
+        0.6588816778213848
+      ],
+      [
+        "PC2 (Qubit 1)",
+        0.1273524675824606
+      ],
+      [
+        "PC3 (Qubit 2)",
+        0.08248884240079922
+      ],
+      [
+        "PC4 (Qubit 3)",
+        0.05251338250620129
+      ],
+      [
+        "PC5 (Qubit 4)",
+        0.04830259423078597
+      ]
+    ]
+  },
+  "correlations": {
+    "Quantum_QSVC_vs_Random_Forest": {
+      "model_1": "Quantum QSVC",
+      "model_2": "Random Forest",
+      "spearman_rho": 0.9429,
+      "spearman_p_value": 0.0048,
+      "top3_jaccard_overlap": 1.0,
+      "clinical_concordance": "High"
+    },
+    "Quantum_QSVC_vs_Classical_SVM": {
+      "model_1": "Quantum QSVC",
+      "model_2": "Classical SVM",
+      "spearman_rho": 1.0,
+      "spearman_p_value": 0.0,
+      "top3_jaccard_overlap": 1.0,
+      "clinical_concordance": "High"
+    },
+    "Quantum_VQC_vs_Random_Forest": {
+      "model_1": "Quantum VQC",
+      "model_2": "Random Forest",
+      "spearman_rho": 0.9429,
+      "spearman_p_value": 0.0048,
+      "top3_jaccard_overlap": 1.0,
+      "clinical_concordance": "High"
+    },
+    "Quantum_VQC_vs_Classical_SVM": {
+      "model_1": "Quantum VQC",
+      "model_2": "Classical SVM",
+      "spearman_rho": 1.0,
+      "spearman_p_value": 0.0,
+      "top3_jaccard_overlap": 1.0,
+      "clinical_concordance": "High"
+    },
+    "Quantum_QSVC_vs_Quantum_VQC": {
+      "model_1": "Quantum QSVC",
+      "model_2": "Quantum VQC",
+      "spearman_rho": 1.0,
+      "spearman_p_value": 0.0,
+      "top3_jaccard_overlap": 1.0,
+      "clinical_concordance": "High"
+    }
+  }
+}
