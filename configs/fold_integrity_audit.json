@@ -1,0 +1,255 @@
+{
+  "title": "Dual-Cohort Cross-Validation Pipeline Integrity Certificate",
+  "audited_by": "Member A (Pipeline Integrity Lead)",
+  "wdbc_audit": {
+    "audit_title": "HQML Cross-Validation & Zero-Data-Leakage Audit Certificate",
+    "auditor": "Member A (Classical ML & Pipeline Integrity Lead)",
+    "dataset": "WDBC",
+    "config_file": "configs\\folds_wdbc.json",
+    "sha256_hash": "cfb84e86d8f79d74926c63919a364a880f65b6c66f963bcfbce108494dc2c062",
+    "status": "CERTIFIED_ZERO_LEAKAGE",
+    "disjointness_and_coverage": {
+      "status": "PASS",
+      "n_samples": 569,
+      "n_folds": 5,
+      "exhaustive_coverage": true,
+      "zero_index_overlap": true,
+      "folds": [
+        {
+          "fold": 0,
+          "n_train": 455,
+          "n_val": 114,
+          "disjoint": true
+        },
+        {
+          "fold": 1,
+          "n_train": 455,
+          "n_val": 114,
+          "disjoint": true
+        },
+        {
+          "fold": 2,
+          "n_train": 455,
+          "n_val": 114,
+          "disjoint": true
+        },
+        {
+          "fold": 3,
+          "n_train": 455,
+          "n_val": 114,
+          "disjoint": true
+        },
+        {
+          "fold": 4,
+          "n_train": 456,
+          "n_val": 113,
+          "disjoint": true
+        }
+      ]
+    },
+    "stratification": {
+      "status": "PASS",
+      "global_positive_ratio": 0.3726,
+      "max_allowed_deviation": 0.03,
+      "stratification": [
+        {
+          "fold": 0,
+          "n_val": 114,
+          "positives": 43,
+          "negatives": 71,
+          "positive_ratio": 0.3772,
+          "deviation_from_global": 0.0046
+        },
+        {
+          "fold": 1,
+          "n_val": 114,
+          "positives": 43,
+          "negatives": 71,
+          "positive_ratio": 0.3772,
+          "deviation_from_global": 0.0046
+        },
+        {
+          "fold": 2,
+          "n_val": 114,
+          "positives": 42,
+          "negatives": 72,
+          "positive_ratio": 0.3684,
+          "deviation_from_global": 0.0042
+        },
+        {
+          "fold": 3,
+          "n_val": 114,
+          "positives": 42,
+          "negatives": 72,
+          "positive_ratio": 0.3684,
+          "deviation_from_global": 0.0042
+        },
+        {
+          "fold": 4,
+          "n_val": 113,
+          "positives": 42,
+          "negatives": 71,
+          "positive_ratio": 0.3717,
+          "deviation_from_global": 0.0009
+        }
+      ]
+    },
+    "data_leakage": {
+      "status": "PASS",
+      "zero_leakage_verified": true,
+      "leakage_audits": [
+        {
+          "fold": 0,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 1,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 2,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 3,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 4,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        }
+      ]
+    }
+  },
+  "heart_audit": {
+    "audit_title": "HQML Cross-Validation & Zero-Data-Leakage Audit Certificate",
+    "auditor": "Member A (Classical ML & Pipeline Integrity Lead)",
+    "dataset": "HEART",
+    "config_file": "configs\\folds_heart.json",
+    "sha256_hash": "a072c0ca0f391c6e49a9f6e071e5950e9798d2dab722dd8582516d8938646351",
+    "status": "CERTIFIED_ZERO_LEAKAGE",
+    "disjointness_and_coverage": {
+      "status": "PASS",
+      "n_samples": 303,
+      "n_folds": 5,
+      "exhaustive_coverage": true,
+      "zero_index_overlap": true,
+      "folds": [
+        {
+          "fold": 0,
+          "n_train": 242,
+          "n_val": 61,
+          "disjoint": true
+        },
+        {
+          "fold": 1,
+          "n_train": 242,
+          "n_val": 61,
+          "disjoint": true
+        },
+        {
+          "fold": 2,
+          "n_train": 242,
+          "n_val": 61,
+          "disjoint": true
+        },
+        {
+          "fold": 3,
+          "n_train": 243,
+          "n_val": 60,
+          "disjoint": true
+        },
+        {
+          "fold": 4,
+          "n_train": 243,
+          "n_val": 60,
+          "disjoint": true
+        }
+      ]
+    },
+    "stratification": {
+      "status": "PASS",
+      "global_positive_ratio": 0.4587,
+      "max_allowed_deviation": 0.03,
+      "stratification": [
+        {
+          "fold": 0,
+          "n_val": 61,
+          "positives": 28,
+          "negatives": 33,
+          "positive_ratio": 0.459,
+          "deviation_from_global": 0.0003
+        },
+        {
+          "fold": 1,
+          "n_val": 61,
+          "positives": 28,
+          "negatives": 33,
+          "positive_ratio": 0.459,
+          "deviation_from_global": 0.0003
+        },
+        {
+          "fold": 2,
+          "n_val": 61,
+          "positives": 28,
+          "negatives": 33,
+          "positive_ratio": 0.459,
+          "deviation_from_global": 0.0003
+        },
+        {
+          "fold": 3,
+          "n_val": 60,
+          "positives": 27,
+          "negatives": 33,
+          "positive_ratio": 0.45,
+          "deviation_from_global": 0.0087
+        },
+        {
+          "fold": 4,
+          "n_val": 60,
+          "positives": 28,
+          "negatives": 32,
+          "positive_ratio": 0.4667,
+          "deviation_from_global": 0.0079
+        }
+      ]
+    },
+    "data_leakage": {
+      "status": "PASS",
+      "zero_leakage_verified": true,
+      "leakage_audits": [
+        {
+          "fold": 0,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 1,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 2,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 3,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        },
+        {
+          "fold": 4,
+          "isolated_fit_verified": true,
+          "zero_leakage_confirmed": true
+        }
+      ]
+    }
+  },
+  "parity_guarantee": "Identical fold splits and zero-leakage preprocessors are certified for both Classical baselines (Member A) and Quantum circuits (Member B)."
+}
