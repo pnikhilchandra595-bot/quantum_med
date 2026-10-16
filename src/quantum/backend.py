@@ -30,7 +30,12 @@ class QuantumBackendManager:
         max_qubits: int = DEFAULT_MAX_QUBITS,
         max_memory_mb: float = DEFAULT_MAX_MEMORY_MB,
         fallback_to_default: bool = True,
+        n_qubits: Optional[int] = None,
+        **kwargs,
     ):
+        if n_qubits is not None:
+            max_qubits = max(max_qubits, n_qubits)
+        self.n_qubits = n_qubits
         if not (0.0 <= noise_level <= 1.0):
             raise ValueError(f"noise_level must be between 0.0 and 1.0, got {noise_level}")
         if shots is not None and (
@@ -84,11 +89,13 @@ class QuantumBackendManager:
                 f"the configured memory cap of {self.max_memory_mb:.2f} MB."
             )
 
-    def get_device(self, wires: int) -> Any:
+    def get_device(self, wires: Optional[int] = None) -> Any:
         """
         Instantiate or return cached PennyLane device for the specified wire count,
         enforcing safety bounds and handling simulator fallbacks.
         """
+        if wires is None:
+            wires = self.n_qubits or 4
         self.validate_wire_bounds(wires)
 
         cache_key = wires

@@ -1,6 +1,7 @@
 """Unit tests for Explainability (XAI) adapters and SHAP explainers."""
 
 import pytest
+import numpy as np
 
 pytest.importorskip("shap")
 from sklearn.datasets import make_classification

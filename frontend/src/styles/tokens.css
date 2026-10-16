@@ -1,0 +1,154 @@
+/* ==========================================================================
+   QUANTUMHEALTH DESIGN SYSTEM TOKENS
+   Version: 1.0.0
+   Specification: Dark/Light Mode, 4/8px Spacing, Fluid Typography, WCAG AA
+   ========================================================================== */
+
+:root {
+  /* Color Palette - Light Mode Default */
+  --color-bg-canvas: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-elevated: #ffffff;
+  --color-bg-overlay: rgba(248, 250, 252, 0.85);
+  --color-bg-glass: rgba(255, 255, 255, 0.85);
+
+  --color-border-subtle: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-border-focus: #0284c7;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #64748b;
+  --color-text-disabled: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* Brand Accents (Quantum Core) */
+  --color-quantum-primary: #0284c7;
+  --color-quantum-glow: rgba(2, 132, 199, 0.2);
+  --color-quantum-surface: rgba(2, 132, 199, 0.08);
+
+  --color-hilbert-accent: #4f46e5;
+  --color-hilbert-glow: rgba(79, 70, 229, 0.2);
+
+  /* Semantic Feedback */
+  --color-semantic-benign: #059669;
+  --color-semantic-benign-surface: rgba(5, 150, 105, 0.1);
+  --color-semantic-warning: #d97706;
+  --color-semantic-warning-surface: rgba(217, 119, 6, 0.1);
+  --color-semantic-malignant: #e11d48;
+  --color-semantic-malignant-surface: rgba(225, 29, 72, 0.1);
+  --color-semantic-info: #0284c7;
+  --color-semantic-info-surface: rgba(2, 132, 199, 0.1);
+
+  /* Typography Scale */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px - Non-negotiable Minimum Body */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* 4/8px Spacing Scale */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-quantum: 0 0 20px rgba(2, 132, 199, 0.15);
+
+  /* Motion Timing & Easing */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Dark Mode Tokens (Technical Clinical Glassmorphism) */
+[data-theme="dark"],
+.dark {
+  --color-bg-canvas: #090d16;
+  --color-bg-surface: #0f172a;
+  --color-bg-surface-elevated: #1e293b;
+  --color-bg-overlay: rgba(9, 13, 22, 0.85);
+  --color-bg-glass: rgba(15, 23, 42, 0.75);
+
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-border-focus: #38bdf8;
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-text-disabled: #475569;
+  --color-text-inverse: #0f172a;
+
+  /* Brand Accents */
+  --color-quantum-primary: #38bdf8;
+  --color-quantum-glow: rgba(56, 189, 248, 0.25);
+  --color-quantum-surface: rgba(56, 189, 248, 0.12);
+
+  --color-hilbert-accent: #818cf8;
+  --color-hilbert-glow: rgba(129, 140, 248, 0.25);
+
+  /* Semantic Feedback */
+  --color-semantic-benign: #10b981;
+  --color-semantic-benign-surface: rgba(16, 185, 129, 0.15);
+  --color-semantic-warning: #f59e0b;
+  --color-semantic-warning-surface: rgba(245, 158, 11, 0.15);
+  --color-semantic-malignant: #f43f5e;
+  --color-semantic-malignant-surface: rgba(244, 63, 94, 0.15);
+  --color-semantic-info: #38bdf8;
+  --color-semantic-info-surface: rgba(56, 189, 248, 0.15);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+  --shadow-quantum: 0 0 25px rgba(56, 189, 248, 0.25);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
