@@ -148,11 +148,15 @@ def get_folds(
         List of 5 SplitFold objects.
     """
     clean_name = dataset_name.lower().strip()
+    configs_path = Path(configs_dir)
+    if not configs_path.exists() and (Path("backend") / configs_dir).exists():
+        configs_path = Path("backend") / configs_dir
+
     if clean_name in ["wdbc", "breast_cancer"]:
-        json_file = Path(configs_dir) / "folds_wdbc.json"
+        json_file = configs_path / "folds_wdbc.json"
         load_fn = lambda: load_wdbc(scale=False, return_feature_names=False)[1]
     elif clean_name in ["heart", "heart_disease", "cleveland"]:
-        json_file = Path(configs_dir) / "folds_heart.json"
+        json_file = configs_path / "folds_heart.json"
         load_fn = lambda: load_heart_disease(scale=False, return_feature_names=False)[1]
     else:
         raise ValueError(f"Unknown dataset name '{dataset_name}'. Supported: 'wdbc', 'heart'")

@@ -12,8 +12,11 @@ from pathlib import Path
 
 import numpy as np
 
-# Ensure repository root is on Python path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Ensure backend and repository root are on Python path
+repo_root = Path(__file__).resolve().parent
+backend_dir = repo_root / "backend"
+sys.path.insert(0, str(backend_dir))
+sys.path.insert(0, str(repo_root))
 
 from src.data.loader import AVAILABLE_DATASETS, load_dataset  # noqa: E402
 from src.models.factory import ModelFactory  # noqa: E402

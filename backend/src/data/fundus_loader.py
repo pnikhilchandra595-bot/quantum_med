@@ -16,7 +16,19 @@ except ImportError:
     Image = None
 
 
-FUNDUS_DIR = os.path.join("data", "Sample_Fundus_Photos")
+def _get_default_fundus_dir() -> str:
+    candidates = [
+        os.path.join("backend", "data", "Sample_Fundus_Photos"),
+        os.path.join("data", "Sample_Fundus_Photos"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", "Sample_Fundus_Photos"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return candidates[0]
+
+
+FUNDUS_DIR = _get_default_fundus_dir()
 
 
 def parse_label_from_filename(filename: str) -> int:

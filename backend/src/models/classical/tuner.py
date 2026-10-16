@@ -187,12 +187,24 @@ class HyperparameterTuner:
         }
 
 
+def _resolve_config_path(p: str) -> str:
+    if os.path.exists(p):
+        return p
+    backend_p = os.path.join("backend", p)
+    if os.path.exists(backend_p):
+        return backend_p
+    return p
+
+
 def tune_and_export_benchmarks(
     configs_dir: str = "configs",
     optimal_params_path: str = "configs/optimal_hyperparams.json",
     benchmark_results_path: str = "configs/benchmark_results.json",
 ) -> Dict[str, Any]:
     """Execute hyperparameter optimization for WDBC and Heart cohorts and persist benchmarks."""
+    configs_dir = _resolve_config_path(configs_dir)
+    optimal_params_path = _resolve_config_path(optimal_params_path)
+    benchmark_results_path = _resolve_config_path(benchmark_results_path)
     wdbc_tuner = HyperparameterTuner("wdbc", configs_dir=configs_dir)
     heart_tuner = HyperparameterTuner("heart", configs_dir=configs_dir)
 

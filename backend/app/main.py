@@ -7,10 +7,11 @@ import sys
 from pathlib import Path
 import streamlit as st
 
-# Ensure repository root is on sys.path
+# Ensure backend directory and repository root are on sys.path
 root_dir = Path(__file__).resolve().parent.parent
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
+for p in [root_dir, root_dir.parent]:
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 from app.components.telemetry_hud import render_telemetry_hud
 from app.components.fundus_viewer import render_fundus_viewer

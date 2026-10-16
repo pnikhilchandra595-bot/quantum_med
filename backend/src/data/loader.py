@@ -89,7 +89,7 @@ def get_raw_dataframe(name: str = "wdbc") -> pd.DataFrame:
             df["target"] = bunch.target
         return df
     elif name_clean in ["heart", "heart_disease", "cardiac"]:
-        for p in ["data/heart_disease.csv", "heart_disease.csv"]:
+        for p in ["data/heart_disease.csv", "backend/data/heart_disease.csv", "heart_disease.csv"]:
             if Path(p).exists():
                 df = pd.read_csv(p)
                 if "target" in df.columns:

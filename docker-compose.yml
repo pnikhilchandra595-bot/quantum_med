@@ -16,8 +16,8 @@ services:
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
       - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
     volumes:
-      - ./checkpoints:/app/checkpoints
-      - ./data:/app/data
+      - ./backend/checkpoints:/app/checkpoints
+      - ./backend/data:/app/data
       - ./outputs:/app/outputs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]

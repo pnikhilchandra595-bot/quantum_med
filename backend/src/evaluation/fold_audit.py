@@ -36,7 +36,10 @@ class FoldIntegrityAuditor:
 
     def __init__(self, dataset_name: str = "wdbc", configs_dir: str = "configs"):
         self.dataset_name = dataset_name.lower().strip()
-        self.configs_dir = Path(configs_dir)
+        p = Path(configs_dir)
+        if not p.exists() and (Path("backend") / configs_dir).exists():
+            p = Path("backend") / configs_dir
+        self.configs_dir = p
 
         if self.dataset_name in ["wdbc", "breast_cancer"]:
             self.json_path = self.configs_dir / "folds_wdbc.json"

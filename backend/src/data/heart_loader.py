@@ -18,9 +18,17 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+def _resolve_data_path(rel_path: str) -> str:
+    for prefix in ["backend", "", os.path.join(os.path.dirname(__file__), "..", "..")]:
+        candidate = os.path.join(prefix, rel_path) if prefix else rel_path
+        if os.path.exists(candidate):
+            return candidate
+    return rel_path
+
+
 RAW_UCI_HEART_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
-DEFAULT_RAW_PATH = "data/raw/processed.cleveland.data"
-DEFAULT_PROCESSED_PATH = "data/processed/heart_scaled.npy"
+DEFAULT_RAW_PATH = _resolve_data_path("data/raw/processed.cleveland.data")
+DEFAULT_PROCESSED_PATH = _resolve_data_path("data/processed/heart_scaled.npy")
 
 RAW_COLUMNS = [
     "age", "sex", "cp", "trestbps", "chol", "fbs", 

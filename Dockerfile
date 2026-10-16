@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency specifications
-COPY requirements.txt .
+COPY backend/requirements.txt requirements.txt
 
 # Install CPU PyTorch first to prevent massive CUDA download in lightweight container
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -46,11 +46,8 @@ RUN useradd -m -u 1001 appuser && \
     chown -R appuser:appuser /app
 
 # Copy application codebase
-COPY --chown=appuser:appuser src/ /app/src/
-COPY --chown=appuser:appuser app/ /app/app/
-COPY --chown=appuser:appuser data/ /app/data/
+COPY --chown=appuser:appuser backend/ /app/
 COPY --chown=appuser:appuser cli.py /app/cli.py
-COPY --chown=appuser:appuser pyproject.toml /app/pyproject.toml
 
 USER appuser
 

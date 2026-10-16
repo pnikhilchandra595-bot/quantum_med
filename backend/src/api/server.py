@@ -11,10 +11,12 @@ from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 
-# Add workspace root to sys.path
-WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(WORKSPACE_ROOT) not in sys.path:
-    sys.path.insert(0, str(WORKSPACE_ROOT))
+# Add backend root and repository root to sys.path
+BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = BACKEND_ROOT.parent
+for p in [BACKEND_ROOT, REPO_ROOT]:
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
