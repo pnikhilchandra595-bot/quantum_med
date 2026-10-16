@@ -3,6 +3,117 @@ import { Activity, Layers, Dna, Radio, Play, Pause, Cpu, Zap } from 'lucide-reac
 
 type MultiModalTab = 'ecg' | 'mri' | 'oct' | 'genomics';
 
+export function generateSyntheticEcg(rhythm: 'sinus' | 'afib' | 'vtach' | 'ischemia') {
+  const sampleRate = 250;
+  const durationS = 2.0;
+  const n = sampleRate * durationS;
+  const t: number[] = [];
+  const v: number[] = [];
+
+  for (let i = 0; i < n; i++) {
+    const time = i / sampleRate;
+    t.push(parseFloat(time.toFixed(4)));
+    const baseline = 0.04 * Math.sin(2 * Math.PI * 0.25 * time);
+    v.push(baseline);
+  }
+
+  if (rhythm === 'afib') {
+    const peaks = [0.15, 0.42, 0.61, 0.95, 1.18, 1.52, 1.81];
+    for (let i = 0; i < n; i++) {
+      v[i] += 0.06 * Math.sin(2 * Math.PI * 6.5 * t[i]) + Math.sin(i * 13.7) * 0.03;
+    }
+    const qrsPattern = [0.1, 0.2, -0.2, 1.2, -0.4, 0.1, 0.2, 0.1, 0.05, 0.02, 0.01];
+    for (const p of peaks) {
+      const idx = Math.floor(p * sampleRate);
+      for (let k = 0; k < qrsPattern.length; k++) {
+        const target = idx - 5 + k;
+        if (target >= 0 && target < n) {
+          v[target] += qrsPattern[k];
+        }
+      }
+    }
+    return {
+      classification: 'ATRIAL FIBRILLATION DETECTED',
+      voltage: v.map((val) => parseFloat(val.toFixed(4))),
+      time: t,
+      quantumEntropy: 0.842,
+      qftPeakHz: 6.5,
+    };
+  } else if (rhythm === 'vtach') {
+    for (let i = 0; i < n; i++) {
+      v[i] += 0.9 * Math.sin(2 * Math.PI * 3.8 * t[i]) + 0.2 * Math.sin(2 * Math.PI * 7.6 * t[i]);
+    }
+    return {
+      classification: 'VENTRICULAR TACHYCARDIA (CRITICAL)',
+      voltage: v.map((val) => parseFloat(val.toFixed(4))),
+      time: t,
+      quantumEntropy: 0.915,
+      qftPeakHz: 3.8,
+    };
+  } else if (rhythm === 'ischemia') {
+    const peaks = [0.3, 1.1, 1.9];
+    for (const p of peaks) {
+      const idx = Math.floor(p * sampleRate);
+      const qrs = [0.1, -0.2, 1.1, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05];
+      for (let k = 0; k < qrs.length; k++) {
+        const target = idx - 3 + k;
+        if (target >= 0 && target < n) {
+          v[target] += qrs[k];
+        }
+      }
+      // Pronounced ST-segment depression and T-wave inversion
+      for (let k = 0; k < 25; k++) {
+        const target = idx + 8 + k;
+        if (target >= 0 && target < n) {
+          v[target] -= 0.18 * Math.sin((Math.PI * k) / 25);
+        }
+      }
+    }
+    return {
+      classification: 'SUBENDOCARDIAL MYOCARDIAL ISCHEMIA (ST-DEPRESSION)',
+      voltage: v.map((val) => parseFloat(val.toFixed(4))),
+      time: t,
+      quantumEntropy: 0.728,
+      qftPeakHz: 1.1,
+    };
+  } else {
+    // Normal Sinus Rhythm
+    const peaks = [0.35, 1.15, 1.95];
+    for (const p of peaks) {
+      const idx = Math.floor(p * sampleRate);
+      // P-wave
+      for (let k = 0; k < 10; k++) {
+        const target = idx - 25 + k;
+        if (target >= 0 && target < n) {
+          v[target] += 0.12 * Math.sin((Math.PI * k) / 10);
+        }
+      }
+      // QRS
+      const qrs = [-0.15, 1.25, -0.35];
+      for (let k = 0; k < qrs.length; k++) {
+        const target = idx - 1 + k;
+        if (target >= 0 && target < n) {
+          v[target] += qrs[k];
+        }
+      }
+      // T-wave
+      for (let k = 0; k < 20; k++) {
+        const target = idx + 20 + k;
+        if (target >= 0 && target < n) {
+          v[target] += 0.28 * Math.sin((Math.PI * k) / 20);
+        }
+      }
+    }
+    return {
+      classification: 'NORMAL SINUS RHYTHM (NSR)',
+      voltage: v.map((val) => parseFloat(val.toFixed(4))),
+      time: t,
+      quantumEntropy: 0.124,
+      qftPeakHz: 1.2,
+    };
+  }
+}
+
 export const MultiModalStudio: React.FC = () => {
   const [activeTab, setActiveTab] = useState<MultiModalTab>('ecg');
 
@@ -15,13 +126,7 @@ export const MultiModalStudio: React.FC = () => {
     time: number[];
     quantumEntropy: number;
     qftPeakHz: number;
-  }>({
-    classification: 'NORMAL SINUS RHYTHM (NSR)',
-    voltage: [],
-    time: [],
-    quantumEntropy: 0.124,
-    qftPeakHz: 1.2,
-  });
+  }>(() => generateSyntheticEcg('sinus'));
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animOffsetRef = useRef<number>(0);
 
@@ -52,9 +157,13 @@ export const MultiModalStudio: React.FC = () => {
               qftPeakHz: json.quantum_fourier_peak_hz,
             });
           }
+        } else if (isMounted) {
+          setEcgData(generateSyntheticEcg(ecgRhythm));
         }
       } catch {
-        // Fallback synthetic if offline
+        if (isMounted) {
+          setEcgData(generateSyntheticEcg(ecgRhythm));
+        }
       }
     };
     fetchEcg();
@@ -114,14 +223,24 @@ export const MultiModalStudio: React.FC = () => {
       }
 
       // Draw ECG trace
-      const pts = ecgData.voltage;
+      const pts = (ecgData.voltage && ecgData.voltage.length > 0)
+        ? ecgData.voltage
+        : generateSyntheticEcg(ecgRhythm).voltage;
+
       if (pts && pts.length > 0) {
         if (ecgIsStreaming) {
           animOffsetRef.current = (animOffsetRef.current + 2) % pts.length;
         }
         const offset = animOffsetRef.current;
 
-        ctx.strokeStyle = ecgRhythm === 'sinus' ? '#10b981' : ecgRhythm === 'vtach' ? '#ef4444' : '#38bdf8';
+        ctx.strokeStyle =
+          ecgRhythm === 'sinus'
+            ? '#10b981'
+            : ecgRhythm === 'vtach'
+            ? '#ef4444'
+            : ecgRhythm === 'ischemia'
+            ? '#f59e0b'
+            : '#38bdf8';
         ctx.lineWidth = 2.5;
         ctx.shadowColor = ctx.strokeStyle;
         ctx.shadowBlur = 8;
@@ -245,7 +364,11 @@ export const MultiModalStudio: React.FC = () => {
                   <button
                     key={r.id}
                     type="button"
-                    onClick={() => setEcgRhythm(r.id as any)}
+                    onClick={() => {
+                      const rhythmKey = r.id as 'sinus' | 'afib' | 'vtach' | 'ischemia';
+                      setEcgRhythm(rhythmKey);
+                      setEcgData(generateSyntheticEcg(rhythmKey));
+                    }}
                     className="btn btn-secondary"
                     style={{
                       padding: '4px 10px',
@@ -280,7 +403,7 @@ export const MultiModalStudio: React.FC = () => {
                   className="badge"
                   style={{
                     background: 'rgba(0,0,0,0.85)',
-                    color: ecgRhythm === 'sinus' ? '#10b981' : '#ef4444',
+                    color: ecgRhythm === 'sinus' ? '#10b981' : ecgRhythm === 'ischemia' ? '#f59e0b' : '#ef4444',
                     border: '1px solid rgba(255,255,255,0.15)',
                     fontSize: '11px',
                   }}
