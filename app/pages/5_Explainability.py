@@ -18,13 +18,14 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 
 from src.data.loader import load_dataset
+from src.data.feature_reduction import PCAReducer
 from src.models.classical.trees import RandomForestModel, XGBoostModel
-from src.models.classical.svm import RBFSVMModel
-from src.models.quantum.quantum_models import QSVCModel, VQCModel
+from src.models.classical.svm import RBFSVMModel, LinearSVMModel
+from src.models.classical.mlp import MLPModel
+from src.models.quantum.quantum_models import QSVCModel, VQCModel, HQNNModel
 from src.xai.classical_shap import ClassicalSHAPExplainer
 from src.xai.quantum_shap import QuantumKernelSHAP
 
@@ -78,37 +79,53 @@ st.markdown(
 
 @st.cache_resource
 def load_and_prepare_models():
-    """Load dataset, train classical and quantum models on 6 PCs, and prepare explainers."""
-    X, y, feature_names, _ = load_dataset("wdbc")
-    pca = PCA(n_components=6, random_state=42)
-    X_k = pca.fit_transform(X)
+    """Load dataset with zero data leakage, train all models on 6 PCs, and prepare explainers."""
+    X_raw, y, feature_names, _ = load_dataset("wdbc", scaled=False)
 
     component_names = [f"PC{i+1} (Qubit {i})" for i in range(6)]
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_k, y, test_size=0.2, random_state=42, stratify=y
+    # Out-of-fold stratified split
+    X_tr_raw, X_te_raw, y_train, y_test = train_test_split(
+        X_raw, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # Train models
+    # ZERO DATA LEAKAGE: Fit PCA strictly on training partition
+    reducer = PCAReducer(n_components=6, random_state=42)
+    X_train = reducer.fit_transform(X_tr_raw)
+    X_test = reducer.transform(X_te_raw)
+
+    # Train all models
     rf = RandomForestModel(n_estimators=100, max_depth=5, random_state=42).fit(X_train, y_train)
-    svm = RBFSVMModel(random_state=42).fit(X_train, y_train)
+    xgb = XGBoostModel(n_estimators=100, max_depth=4, random_state=42).fit(X_train, y_train)
+    svm_rbf = RBFSVMModel(random_state=42).fit(X_train, y_train)
+    svm_lin = LinearSVMModel(random_state=42).fit(X_train, y_train)
+    mlp = MLPModel(hidden_layer_sizes=(32, 16), max_iter=600, random_state=42).fit(X_train, y_train)
     qsvc = QSVCModel(C=2.0, random_state=42).fit(X_train, y_train)
     vqc = VQCModel(random_state=42).fit(X_train, y_train)
+    hqnn = HQNNModel(random_state=42).fit(X_train, y_train)
 
     # Prepare explainers with background dataset
     bg = X_train[:30]
     explainers = {
         "QSVC (Quantum Kernel)": QuantumKernelSHAP(qsvc, bg, component_names),
         "VQC (Variational Quantum)": QuantumKernelSHAP(vqc, bg, component_names),
+        "HQNN (Hybrid Quantum NN)": QuantumKernelSHAP(hqnn, bg, component_names),
         "Random Forest (Classical)": ClassicalSHAPExplainer(rf, bg, component_names),
-        "RBF SVM (Classical)": ClassicalSHAPExplainer(svm, bg, component_names),
+        "XGBoost (Classical)": ClassicalSHAPExplainer(xgb, bg, component_names),
+        "RBF SVM (Classical)": ClassicalSHAPExplainer(svm_rbf, bg, component_names),
+        "Linear SVM (Classical)": ClassicalSHAPExplainer(svm_lin, bg, component_names),
+        "MLP (Classical)": ClassicalSHAPExplainer(mlp, bg, component_names),
     }
 
     models = {
         "QSVC (Quantum Kernel)": qsvc,
         "VQC (Variational Quantum)": vqc,
+        "HQNN (Hybrid Quantum NN)": hqnn,
         "Random Forest (Classical)": rf,
-        "RBF SVM (Classical)": svm,
+        "XGBoost (Classical)": xgb,
+        "RBF SVM (Classical)": svm_rbf,
+        "Linear SVM (Classical)": svm_lin,
+        "MLP (Classical)": mlp,
     }
 
     return X_train, X_test, y_train, y_test, component_names, models, explainers
