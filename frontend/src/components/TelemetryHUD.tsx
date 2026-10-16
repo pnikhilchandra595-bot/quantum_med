@@ -8,7 +8,7 @@ export const TelemetryHUD: React.FC<{ nQubits?: number }> = ({ nQubits = 4 }) =>
   const [ping, setPing] = useState<number>(4.2);
 
   useEffect(() => {
-    getHealth().then((h) => {
+    getHealth().then((h: HealthStatus) => {
       setHealth(h);
       setPing(parseFloat((Math.random() * 3 + 2).toFixed(1)));
     });
