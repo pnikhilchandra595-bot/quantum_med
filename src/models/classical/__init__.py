@@ -1,5 +1,6 @@
 """Classical Machine Learning Models Suite."""
 
+from src.models.classical_model import ClassicalModel
 from src.models.classical.svm import ClassicalSVM, LinearSVMModel, RBFSVMModel
 from src.models.classical.mlp import ClassicalMLP, MLPModel
 from src.models.classical.rf import ClassicalRandomForest
