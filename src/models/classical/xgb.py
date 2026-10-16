@@ -1,7 +1,7 @@
 """Classical XGBoost Classifier Baseline.
 
 Module: src.models.classical.xgb
-Owner: Member A (Lead / Classical ML Engineer)
+Owner: Member A & Member C
 Deliverable: D5 (Classical Baselines)
 """
 
@@ -21,16 +21,17 @@ class ClassicalXGBoost(BaseModel):
 
     def __init__(
         self,
+        name: str = "XGBoost",
         n_estimators: int = 100,
         max_depth: int = 4,
         learning_rate: float = 0.1,
         random_state: int = 42,
         **kwargs: Any,
     ):
+        super().__init__(name=name, random_state=random_state, **kwargs)
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.learning_rate = learning_rate
-        self.random_state = random_state
         self.extra_kwargs = kwargs
 
         self.model = XGBClassifier(
@@ -41,6 +42,7 @@ class ClassicalXGBoost(BaseModel):
             eval_metric="logloss",
             **self.extra_kwargs,
         )
+        self.is_fitted = False
         self.is_fitted_ = False
 
     def fit(
@@ -58,20 +60,27 @@ class ClassicalXGBoost(BaseModel):
         else:
             self.model.fit(X_arr, y_arr, verbose=False)
 
+        self.is_fitted = True
         self.is_fitted_ = True
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        if not self.is_fitted_:
-            raise RuntimeError("Model must be fitted before predict.")
+        if not self.is_fitted:
+            raise RuntimeError(f"{self.name} must be fitted before predict.")
         X_arr = np.asarray(X, dtype=np.float64)
         return self.model.predict(X_arr).astype(np.int64)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        if not self.is_fitted_:
-            raise RuntimeError("Model must be fitted before predict_proba.")
+        if not self.is_fitted:
+            raise RuntimeError(f"{self.name} must be fitted before predict_proba.")
         X_arr = np.asarray(X, dtype=np.float64)
         return self.model.predict_proba(X_arr)
+
+    @property
+    def feature_importances_(self) -> np.ndarray:
+        if not self.is_fitted:
+            raise RuntimeError(f"{self.name} is not fitted yet.")
+        return self.model.feature_importances_
 
     def save(self, file_path: Union[str, Path]) -> None:
         path = Path(file_path)
@@ -81,5 +90,6 @@ class ClassicalXGBoost(BaseModel):
     def load(self, file_path: Union[str, Path]) -> "ClassicalXGBoost":
         path = Path(file_path)
         self.model = joblib.load(path)
+        self.is_fitted = True
         self.is_fitted_ = True
         return self

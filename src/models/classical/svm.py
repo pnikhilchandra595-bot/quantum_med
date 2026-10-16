@@ -1,18 +1,22 @@
 """Classical Support Vector Machine (Linear & RBF) Baseline.
 
 Module: src.models.classical.svm
-Owner: Member A (Lead / Classical ML Engineer)
+Owner: Member A & Member C
 Deliverable: D5 (Classical Baselines)
 Task: T1.6
 """
 
 from __future__ import annotations
 
+import warnings
 from typing import Optional, Tuple, Union, Any, Dict
 from pathlib import Path
 import joblib
 import numpy as np
 from sklearn.svm import SVC
+
+# Suppress sklearn 1.9+ SVC probability deprecation warning
+warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn.svm")
 
 from src.models.base import BaseModel
 
@@ -26,6 +30,7 @@ class ClassicalSVM(BaseModel):
 
     def __init__(
         self,
+        name: str = "ClassicalSVM",
         kernel: str = "rbf",
         C: float = 1.0,
         gamma: Union[str, float] = "scale",
@@ -33,6 +38,7 @@ class ClassicalSVM(BaseModel):
         random_state: int = 42,
         **kwargs: Any,
     ):
+        super().__init__(name=name, random_state=random_state, **kwargs)
         if kernel not in ["linear", "rbf", "poly", "sigmoid"]:
             raise ValueError(f"Unsupported kernel '{kernel}'. Expected 'linear' or 'rbf'.")
 
@@ -40,7 +46,6 @@ class ClassicalSVM(BaseModel):
         self.C = C
         self.gamma = gamma
         self.probability = probability
-        self.random_state = random_state
         self.extra_kwargs = kwargs
 
         self.model = SVC(
@@ -51,6 +56,7 @@ class ClassicalSVM(BaseModel):
             random_state=self.random_state,
             **self.extra_kwargs,
         )
+        self.is_fitted = False
         self.is_fitted_ = False
 
     def fit(
@@ -64,20 +70,21 @@ class ClassicalSVM(BaseModel):
         y_arr = np.asarray(y, dtype=np.int64)
 
         self.model.fit(X_arr, y_arr)
+        self.is_fitted = True
         self.is_fitted_ = True
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict binary diagnostic class labels {0, 1}."""
-        if not self.is_fitted_:
-            raise RuntimeError("ClassicalSVM model must be fitted before predict.")
+        if not self.is_fitted and not self.is_fitted_:
+            raise RuntimeError(f"{self.name} must be fitted before predict.")
         X_arr = np.asarray(X, dtype=np.float64)
         return self.model.predict(X_arr).astype(np.int64)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Predict class probabilities of shape (N, 2)."""
-        if not self.is_fitted_:
-            raise RuntimeError("ClassicalSVM model must be fitted before predict_proba.")
+        if not self.is_fitted and not self.is_fitted_:
+            raise RuntimeError(f"{self.name} must be fitted before predict_proba.")
         X_arr = np.asarray(X, dtype=np.float64)
         if self.probability:
             return self.model.predict_proba(X_arr)
@@ -99,5 +106,48 @@ class ClassicalSVM(BaseModel):
         if not path.exists():
             raise FileNotFoundError(f"Model file not found: {path}")
         self.model = joblib.load(path)
+        self.is_fitted = True
         self.is_fitted_ = True
         return self
+
+
+class LinearSVMModel(ClassicalSVM):
+    """Linear Support Vector Classifier baseline."""
+
+    def __init__(
+        self,
+        name: str = "Linear SVM",
+        C: float = 1.0,
+        random_state: int = 42,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            name=name,
+            kernel="linear",
+            C=C,
+            probability=True,
+            random_state=random_state,
+            **kwargs,
+        )
+
+
+class RBFSVMModel(ClassicalSVM):
+    """RBF Kernel Support Vector Classifier baseline."""
+
+    def __init__(
+        self,
+        name: str = "RBF SVM",
+        C: float = 1.0,
+        gamma: str = "scale",
+        random_state: int = 42,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            name=name,
+            kernel="rbf",
+            C=C,
+            gamma=gamma,
+            probability=True,
+            random_state=random_state,
+            **kwargs,
+        )

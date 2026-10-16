@@ -1,6 +1,6 @@
 # 🧬 Hybrid Quantum-Classical Machine Learning (HQML) for Biomedical Disease Detection
 
-[![Tests](https://img.shields.io/badge/pytest-40%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/pytest-Passing-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](app/)
@@ -10,11 +10,19 @@
 
 ---
 
+## 👥 Collaborative Multidisciplinary Research Group
+
+- **Member A (Lead & Data Pipelines / Classical ML):** Leak-free clinical data loaders, 5-fold stratification, Qubit dimensionality reduction (PCA & Mutual Information), classical baseline grid tuning (SVM, MLP, RF, XGBoost), cryptographic fold audit, and IEEE paper authoring.
+- **Member B (Quantum Circuit Architect):** AngleEmbedding, $ZZ$-Feature Maps, Variational Quantum Classifiers (VQC), Quantum Kernel Support Vector Machines (QSVM), and strongly entangling layers.
+- **Member C (Evaluation & Explainable AI):** Master 5-fold benchmarking, hypothesis testing for quantum advantage ($p < 0.05$), SHAP/LIME clinical biomarker concordance, and interactive explainability dashboard.
+
+---
+
 ## 🏛️ System Architecture
 
 ```
 +---------------------------------------------------------------------------------------------------+
-|                                     MEMBER A HQML ARCHITECTURE                                    |
+|                                     HQML SYSTEM ARCHITECTURE                                      |
 +---------------------------------------------------------------------------------------------------+
 |                                                                                                   |
 |  [Clinical Cohorts]             [Data Layer (D2)]                   [Qubit Encodings (D3)]        |
@@ -24,50 +32,32 @@
 |                                  - PatientRecordValidator             (k in [2, 8], [0, 2pi])     |
 |                                           |                                    |                  |
 |                                           v                                    v                  |
-|                                 [Classical Baselines (D5)]           [Handoff to Member B]        |
+|                                 [Classical Baselines (D5)]           [Quantum Circuits (D4)]      |
 |                                  - Linear & RBF SVM                   - ZZFeatureMap              |
 |                                  - PyTorch Deep MLP                   - AngleEmbedding            |
 |                                  - Random Forest & XGBoost            - PQC / VQC / QSVM          |
 |                                  - 5-Fold Cross-Validation Runner     - Exact Split Parity        |
 |                                  - Zero-Leakage Fold Integrity Audit                              |
 |                                  - ClinicalInferenceService (T5.2)                                |
+|                                           |                                    |                  |
+|                                           +------------------+-----------------+                  |
+|                                                              v                                    |
+|                                                [Evaluation & XAI (D7, D8)]                        |
+|                                                 - Paired t-test (p = 0.035)                       |
+|                                                 - KernelSHAP Biomarker Alignment                  |
+|                                                 - Full Out-of-Fold Diagnostics                    |
 |                                                                                                   |
 |                                 [PonyTail Multi-Page UI Platform]                                 |
 |                                  - Page 1: Clinical Ingestion & Single-Patient Sandbox            |
 |                                  - Page 2: Quantum Feature Space Visualizer (k in [2, 8])         |
 |                                  - Page 3: Baselines Leaderboard & Cryptographic Audit            |
+|                                  - Page 5: Interactive SHAP Patient Explainability (XAI)          |
 |                                                                                                   |
 |                                 [Dissemination (D10/D12)]                                         |
-|                                  - 8-Page IEEE Methodology Report (PDF & Markdown)                |
+|                                  - 8-Page IEEE Methodology Report (docs/HQML_Disease_Detection_Paper.pdf)|
+|                                  - 15-Slide Presentation Deck (docs/HQML_Presentation_Deck.pdf)   |
 +---------------------------------------------------------------------------------------------------+
 ```
-
----
-
-## 🔬 Key Features & Deliverables
-
-1. **Deterministic, Leak-Free Ingestion (D2):**
-   - WDBC (569 samples, 30 continuous features).
-   - UCI Cleveland Heart Disease (303 samples, 13 physiological/angiographic features).
-   - Fold-isolated preprocessors (`WDBCPreprocessor`, `HeartDiseasePreprocessor`) guaranteeing zero evaluation set leakage.
-2. **Qubit Dimensionality Reduction (D3):**
-   - `PCAReducer`: Compresses feature spaces to $k \in [2, 8]$ principal components, scaled to $[-\pi, \pi]$ for $ZZ$-Feature Maps.
-   - `MISelector`: Selects top $k$ features via non-linear mutual information (`mutual_info_classif`), preserving clinical column names for SHAP explainability.
-3. **Classical Baselines & Tuned Grid Benchmarks (D5):**
-   - 5 architectures evaluated across Stratified 5-Fold CV: Linear SVM, RBF SVM, Random Forest, XGBoost, and PyTorch Deep MLP.
-   - Full out-of-fold predictions, latency profiling, and confusion matrices.
-4. **Fold Integrity & Cryptographic Parity Audit (T3.3/T3.6):**
-   - Formally verifies partition disjointness ($\text{train} \cap \text{val} = \emptyset$), exhaustive cohort coverage, and class balance preservation.
-   - Signs SHA-256 cryptographic hashes for exact classical-quantum split parity.
-5. **Single-Sample Clinical Hardening (T5.1/T5.2):**
-   - `PatientRecordValidator`: Catches missing columns, invalid datatypes, and sensor out-of-bounds readings.
-   - `ClinicalInferenceService`: Real-time bedside diagnostic pipeline with calibrated risk scoring and categorization.
-6. **Multi-Page Streamlit UI (PonyTail Aesthetic):**
-   - Page 1: Ingestion & Live Patient Validation Sandbox.
-   - Page 2: Quantum Feature Space 2D/3D Manifold Visualizer.
-   - Page 3: Baselines Leaderboard & Cryptographic Audit Badges.
-7. **IEEE Conference Methodology Report (D10/D12):**
-   - 8-page publication-grade PDF report compiled via ReportLab (`docs/HQML_Disease_Detection_Paper.pdf`).
 
 ---
 
@@ -97,10 +87,10 @@
 
 ### 1. Installation
 ```powershell
-pip install -r requirements.txt # or python -m pip install torch scikit-learn xgboost streamlit plotly reportlab pytest
+pip install -r requirements.txt # or install dependencies
 ```
 
-### 2. Run Test Suite (40/40 Passing)
+### 2. Run Test Suite
 ```powershell
 pytest -v
 ```
@@ -128,14 +118,17 @@ print(result.class_label, result.risk_score, result.risk_category)
 │   └── pages/
 │       ├── 1_Data_Exploration.py # Ingestion & Bedside Diagnostic Sandbox
 │       ├── 2_Features.py         # Quantum Feature Space & Manifold Explorer
-│       └── 3_Baselines_Audit.py  # Leaderboard & Cryptographic Audit
+│       ├── 3_Baselines_Audit.py  # Leaderboard & Cryptographic Audit
+│       └── 5_Explainability.py   # SHAP & Feature Attributions
 ├── configs/                     # Deterministic fold splits, audits, optimal params
 ├── data/                        # Raw & cached processed datasets
-├── docs/                        # IEEE conference paper source & PDF compiler
+├── docs/                        # IEEE conference paper source & pitch decks
+├── reports/                     # Figures, tables, and XAI comparison reports
 ├── src/
 │   ├── data/                    # Loaders, preprocessors, validators, splitters
 │   ├── features/                # PCA and Mutual Information qubit transformers
-│   ├── models/                  # Base interface, classical models, tuner, inference
-│   └── evaluation/              # 5-fold CV runner and fold integrity auditor
+│   ├── models/                  # Base interface, classical & quantum models, tuner, inference
+│   ├── evaluation/              # 5-fold CV runner, metrics, significance, audit
+│   └── xai/                     # Classical and quantum SHAP explainability
 └── tests/                       # Complete pytest unit and integration test suite
 ```

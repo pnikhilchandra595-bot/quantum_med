@@ -1,21 +1,27 @@
 """Base Model Interface for Classical and Hybrid Quantum-Classical Classifiers.
 
 Module: src.models.base
-Owner: Member A (Lead / Classical ML Engineer)
-Deliverable: D5 (Classical Baselines Interface)
+Owner: Member A & Member C
+Deliverable: D5 (Unified ML Model Interface)
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Tuple, Union
-from pathlib import Path
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
 
 class BaseModel(ABC):
     """Abstract Base Class specifying unified interface for all classifiers."""
+
+    def __init__(self, name: str = "", random_state: int = 42, **kwargs: Any) -> None:
+        self.name = name or self.__class__.__name__
+        self.random_state = random_state
+        self.params = kwargs
+        self.model: Any = None
+        self.is_fitted: bool = False
 
     @abstractmethod
     def fit(
@@ -62,3 +68,6 @@ class BaseModel(ABC):
             metrics["roc_auc"] = float("nan")
 
         return metrics
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name='{self.name}', fitted={self.is_fitted})"

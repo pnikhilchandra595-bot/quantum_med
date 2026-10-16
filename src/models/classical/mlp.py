@@ -1,7 +1,7 @@
-"""Classical PyTorch Multi-Layer Perceptron (MLP) Baseline.
+"""Classical Multi-Layer Perceptron (PyTorch Deep MLP & Scikit-Learn MLP) Baselines.
 
 Module: src.models.classical.mlp
-Owner: Member A (Lead / Classical ML Engineer)
+Owner: Member A & Member C
 Deliverable: D5 (Classical Baselines)
 Task: T1.8
 """
@@ -16,6 +16,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
+from sklearn.neural_network import MLPClassifier
 
 from src.models.base import BaseModel
 
@@ -50,8 +51,8 @@ class PyTorchMLPNet(nn.Module):
         out = self.fc2(out)
         out = self.relu2(out)
 
-        logits = self.fc3(out)
-        return logits
+        out = self.fc3(out)
+        return out
 
 
 class ClassicalMLP(BaseModel):
@@ -67,6 +68,7 @@ class ClassicalMLP(BaseModel):
 
     def __init__(
         self,
+        name: str = "ClassicalMLP",
         in_dim: Optional[int] = None,
         lr: float = 0.005,
         weight_decay: float = 1e-4,
@@ -76,7 +78,9 @@ class ClassicalMLP(BaseModel):
         dropout_rate: float = 0.2,
         random_state: int = 42,
         device: Optional[str] = None,
+        **kwargs: Any,
     ):
+        super().__init__(name=name, random_state=random_state, **kwargs)
         self.in_dim = in_dim
         self.lr = lr
         self.weight_decay = weight_decay
@@ -84,7 +88,6 @@ class ClassicalMLP(BaseModel):
         self.epochs = epochs
         self.patience = patience
         self.dropout_rate = dropout_rate
-        self.random_state = random_state
 
         if device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -95,6 +98,7 @@ class ClassicalMLP(BaseModel):
         self.criterion = nn.CrossEntropyLoss()
         self.train_losses: List[float] = []
         self.val_losses: List[float] = []
+        self.is_fitted = False
         self.is_fitted_ = False
 
         self._set_seed(self.random_state)
@@ -105,9 +109,13 @@ class ClassicalMLP(BaseModel):
             torch.cuda.manual_seed_all(seed)
         np.random.seed(seed)
 
-    def _init_network(self, input_dim: int) -> None:
-        self.in_dim = input_dim
-        self.net = PyTorchMLPNet(in_dim=input_dim, dropout_rate=self.dropout_rate).to(self.device)
+    def _init_network(self, in_features: int) -> None:
+        self.net = PyTorchMLPNet(in_dim=in_features, dropout_rate=self.dropout_rate).to(self.device)
+        self.optimizer = torch.optim.Adam(
+            self.net.parameters(),
+            lr=self.lr,
+            weight_decay=self.weight_decay,
+        )
 
     def fit(
         self,
@@ -115,67 +123,56 @@ class ClassicalMLP(BaseModel):
         y: np.ndarray,
         val_data: Optional[Tuple[np.ndarray, np.ndarray]] = None,
     ) -> "ClassicalMLP":
-        """Train the neural network with Adam optimizer and early stopping."""
+        """Train neural network for specified epochs with early stopping."""
         X_arr = np.asarray(X, dtype=np.float32)
         y_arr = np.asarray(y, dtype=np.int64)
 
         if self.net is None or self.in_dim != X_arr.shape[1]:
-            self._init_network(X_arr.shape[1])
+            self.in_dim = X_arr.shape[1]
+            self._init_network(self.in_dim)
 
         assert self.net is not None
+        assert self.optimizer is not None
 
-        optimizer = torch.optim.Adam(
-            self.net.parameters(),
-            lr=self.lr,
-            weight_decay=self.weight_decay,
-        )
+        # Data loaders
+        dataset = TensorDataset(torch.from_numpy(X_arr), torch.from_numpy(y_arr))
+        loader = DataLoader(dataset, batch_size=min(self.batch_size, len(dataset)), shuffle=True)
 
-        train_dataset = TensorDataset(
-            torch.from_numpy(X_arr),
-            torch.from_numpy(y_arr),
-        )
-        train_loader = DataLoader(
-            train_dataset,
-            batch_size=min(self.batch_size, len(X_arr)),
-            shuffle=True,
-            drop_last=False,
-        )
-
-        has_val = val_data is not None
-        if has_val:
+        # Validation tensors if provided
+        X_val_t: Optional[torch.Tensor] = None
+        y_val_t: Optional[torch.Tensor] = None
+        if val_data is not None:
             X_val_t = torch.from_numpy(np.asarray(val_data[0], dtype=np.float32)).to(self.device)
             y_val_t = torch.from_numpy(np.asarray(val_data[1], dtype=np.int64)).to(self.device)
-
-        self.train_losses.clear()
-        self.val_losses.clear()
 
         best_loss = float("inf")
         best_weights = None
         epochs_without_improvement = 0
 
+        self.train_losses.clear()
+        self.val_losses.clear()
+
         for epoch in range(self.epochs):
             self.net.train()
             running_loss = 0.0
-            total_samples = 0
 
-            for batch_x, batch_y in train_loader:
+            for batch_x, batch_y in loader:
                 batch_x = batch_x.to(self.device)
                 batch_y = batch_y.to(self.device)
 
-                optimizer.zero_grad()
-                outputs = self.net(batch_x)
-                loss = self.criterion(outputs, batch_y)
+                self.optimizer.zero_grad()
+                logits = self.net(batch_x)
+                loss = self.criterion(logits, batch_y)
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
                 running_loss += loss.item() * batch_x.size(0)
-                total_samples += batch_x.size(0)
 
-            epoch_train_loss = running_loss / max(total_samples, 1)
-            self.train_losses.append(epoch_train_loss)
+            epoch_loss = running_loss / len(dataset)
+            self.train_losses.append(epoch_loss)
 
-            # Validation loss evaluation
-            if has_val:
+            # Validation step
+            if X_val_t is not None and y_val_t is not None:
                 self.net.eval()
                 with torch.no_grad():
                     val_logits = self.net(X_val_t)
@@ -195,12 +192,13 @@ class ClassicalMLP(BaseModel):
                             self.net.load_state_dict(best_weights)
                         break
 
+        self.is_fitted = True
         self.is_fitted_ = True
         return self
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Compute softmax probabilities for class 0 and class 1."""
-        if not self.is_fitted_ or self.net is None:
+        if not self.is_fitted or self.net is None:
             raise RuntimeError("ClassicalMLP model must be fitted before calling predict_proba.")
         
         self.net.eval()
@@ -220,7 +218,7 @@ class ClassicalMLP(BaseModel):
 
     def save(self, file_path: Union[str, Path]) -> None:
         """Save network weights and configuration."""
-        if not self.is_fitted_ or self.net is None:
+        if not self.is_fitted or self.net is None:
             raise RuntimeError("Cannot save unfitted model.")
         path = Path(file_path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -249,5 +247,49 @@ class ClassicalMLP(BaseModel):
         self._init_network(self.in_dim)
         assert self.net is not None
         self.net.load_state_dict(checkpoint["state_dict"])
+        self.is_fitted = True
         self.is_fitted_ = True
         return self
+
+
+class MLPModel(BaseModel):
+    """Multi-Layer Perceptron Classifier baseline using scikit-learn."""
+
+    def __init__(
+        self,
+        name: str = "MLP",
+        hidden_layer_sizes: Tuple[int, ...] = (32, 16),
+        max_iter: int = 500,
+        random_state: int = 42,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(name=name, random_state=random_state, **kwargs)
+        self.hidden_layer_sizes = hidden_layer_sizes
+        self.max_iter = max_iter
+        self.model = MLPClassifier(
+            hidden_layer_sizes=self.hidden_layer_sizes,
+            max_iter=self.max_iter,
+            random_state=self.random_state,
+            **kwargs,
+        )
+
+    def fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        val_data: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+    ) -> "MLPModel":
+        self.model.fit(X, y)
+        self.is_fitted = True
+        self.is_fitted_ = True
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        if not self.is_fitted:
+            raise RuntimeError(f"{self.name} is not fitted yet.")
+        return self.model.predict(X)
+
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        if not self.is_fitted:
+            raise RuntimeError(f"{self.name} is not fitted yet.")
+        return self.model.predict_proba(X)

@@ -1,0 +1,16 @@
+comparison,quantum_model,classical_model,mean_diff,cohens_d,t_statistic,t_test_p_value,wilcoxon_p_value,quantum_advantage,decision
+QSVC vs Random Forest,QSVC,Random Forest,0.0379,0.96,2.1558,0.0487,0.0625,True,Reject H0 -> Quantum Advantage Confirmed
+QSVC vs Linear SVM,QSVC,Linear SVM,0.0049,0.25,0.5524,0.305,0.25,False,Fail to reject H0 -> Parity/Comparable
+QSVC vs RBF SVM,QSVC,RBF SVM,0.0095,0.45,1.0147,0.1838,0.125,False,Fail to reject H0 -> Parity/Comparable
+QSVC vs XGBoost,QSVC,XGBoost,0.0239,0.48,1.0672,0.173,0.2188,False,Fail to reject H0 -> Parity/Comparable
+QSVC vs MLP,QSVC,MLP,-0.0138,-0.39,-0.874,0.7843,0.75,False,Fail to reject H0 -> Parity/Comparable
+VQC vs Random Forest,VQC,Random Forest,0.0472,1.28,2.8547,0.0231,0.0625,True,Reject H0 -> Quantum Advantage Confirmed
+VQC vs Linear SVM,VQC,Linear SVM,0.0142,1.1,2.4491,0.0353,0.125,True,Reject H0 -> Quantum Advantage Confirmed
+VQC vs RBF SVM,VQC,RBF SVM,0.0188,0.96,2.156,0.0487,0.125,True,Reject H0 -> Quantum Advantage Confirmed
+VQC vs XGBoost,VQC,XGBoost,0.0332,0.77,1.7284,0.0795,0.0625,False,Fail to reject H0 -> Parity/Comparable
+VQC vs MLP,VQC,MLP,-0.0045,-0.18,-0.3962,0.6439,0.75,False,Fail to reject H0 -> Parity/Comparable
+HQNN vs Random Forest,HQNN,Random Forest,0.047,0.86,1.9292,0.063,0.0625,False,Fail to reject H0 -> Parity/Comparable
+HQNN vs Linear SVM,HQNN,Linear SVM,0.014,0.39,0.8801,0.2143,0.375,False,Fail to reject H0 -> Parity/Comparable
+HQNN vs RBF SVM,HQNN,RBF SVM,0.0186,0.41,0.927,0.2032,0.375,False,Fail to reject H0 -> Parity/Comparable
+HQNN vs XGBoost,HQNN,XGBoost,0.033,0.78,1.7454,0.0779,0.0625,False,Fail to reject H0 -> Parity/Comparable
+HQNN vs MLP,HQNN,MLP,-0.0048,-0.18,-0.4082,0.648,0.75,False,Fail to reject H0 -> Parity/Comparable
