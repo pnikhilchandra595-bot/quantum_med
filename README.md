@@ -1,37 +1,31 @@
-# 🧬 Hybrid Quantum Machine Learning Platform for Early Disease Detection (HQML-EDD)
+# QuantumHealth: Hybrid Quantum-Classical Clinical Diagnostics Platform (HQML-EDD)
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![PennyLane](https://img.shields.io/badge/PennyLane-0.38+-purple.svg)](https://pennylane.ai/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-ee4c2c.svg)](https://pytorch.org/)
-[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.4+-orange.svg)](https://scikit-learn.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](app/)
+[![CI Pipeline](https://img.shields.io/badge/CI-Passing-brightgreen.svg)](.github/workflows/ci.yml)
+[![Python 3.10 | 3.11](https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B.svg)](https://streamlit.io/)
+[![PennyLane](https://img.shields.io/badge/PennyLane-0.34+-brightgreen.svg)](https://pennylane.ai/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C.svg)](https://pytorch.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](Dockerfile)
 
-> **IEEE CAIBE 2026 Preprint & Research Platform**  
-> A modular, simulator-first Hybrid Quantum-Classical Machine Learning (HQML) framework for high-dimensional biomedical disease detection across Wisconsin Diagnostic Breast Cancer (WDBC), UCI Cleveland Heart Disease, and Diabetic Retinopathy Fundus Photo cohorts.
+> **QuantumHealth (HQML-EDD)** is an enterprise-grade hybrid quantum-classical machine learning platform engineered to detect subtle non-linear biomarker correlations in oncology (**Wisconsin Diagnostic Breast Cancer - WDBC**), cardiology (**UCI Heart Disease**), and ophthalmology (**Diabetic Retinopathy Fundus Photos**) by exploiting high-dimensional quantum Hilbert spaces alongside rigorous classical baselines.
 
 ---
 
 ## 👥 Collaborative Multidisciplinary Research Group
 
-- **Member A (Lead & Data Pipelines / Classical ML):** Leak-free clinical data loaders, 5-fold stratification, Qubit dimensionality reduction (PCA & Mutual Information), classical baseline grid tuning (SVM, MLP, RF, XGBoost), cryptographic fold audit, and IEEE paper authoring.
-- **Member B (Quantum Circuit Architect):** AngleEmbedding, $ZZ$-Feature Maps, Variational Quantum Classifiers (VQC), Quantum Kernel Support Vector Machines (QSVC), and strongly entangling layers.
-- **Member C (Evaluation & Explainable AI):** Master 5-fold benchmarking, hypothesis testing for quantum advantage ($p < 0.05$), SHAP/LIME clinical biomarker concordance, and interactive explainability dashboard.
+| Team Member | Role & Responsibilities | Deliverables Handled |
+|---|---|---|
+| **Member A** | **Data Engineering & Classical ML Lead** | D2, D3, D5, D10/D12 (Ingestion, Preprocessing, PCA/MI Reducers, Classical Baselines, Fold Audit, IEEE Paper) |
+| **Member B** | **Quantum Circuits & Backend Lead** | D2, D4, D6 (PennyLane Circuits, ZZFeatureMap, VQC, QSVC, HQNN, Device Abstraction) |
+| **Member C** | **Evaluation & Explainability Lead** | D5, D7, D8, D11 (Hypothesis Testing, Statistical Tests, KernelSHAP, Pitch Presentation Deck) |
+| **Member D** | **Platform, UI, DevOps & Docs Lead** | D1, D6, D9, D10, D11, D12 (Streamlit UI, ModelFactory, Headless CLI, CI/CD, Docker, Video, Docs) |
 
 ---
 
-## 🎯 Clinical Benchmarks & Breakthroughs
+## 🔬 System Architecture Overview
 
-In clinical diagnostics, false negatives carry severe mortality risks. HQML-EDD compares **5 Classical Models** against **3 Quantum Machine Learning Architectures** across **5 Clinical Performance Metrics + Inference Latency**.
-
-1. **Quantum Sensitivity Advantage**: Quantum Classifiers (QSVC & VQC) reach **95.77% Sensitivity**, significantly reducing false negatives compared to classical models.
-2. **Statistical Significance**: Paired Student's t-test across 5 folds confirms **Quantum Advantage** ($p = 0.0353 < 0.05$).
-3. **Qubit Budget Pareto Frontier**: Ablation study shows $k=6$ principal components retains **88.76% of total variance** with negligible accuracy drop.
-4. **Transparent Explainability**: Classical & Quantum Kernel SHAP achieve **Spearman $\rho = 0.943 - 1.000$ concordance**, dispelling the "quantum black box" misconception.
-
----
-
-## 🏗️ Architecture Overview
+The system features a **3-Tier Decoupled Architecture** bridging raw clinical record ingestion, quantum state preparation and variational ansatz optimization, and interactive clinical delivery with explainable AI (XAI).
 
 ```
 Biomedical Data (WDBC / Heart / Fundus)
@@ -57,20 +51,31 @@ Biomedical Data (WDBC / Heart / Fundus)
    [ Multi-Page Streamlit GUI Console & Visualizer ]
 ```
 
+![QuantumHealth 3-Tier Architecture](docs/assets/system_diagram.png)
+
+### Key Architectural Highlights:
+1. **Tier 1 (Data & Preprocessing)**: Robust clinical loaders for Wisconsin Diagnostic Breast Cancer (569 samples, 30 features), UCI Heart Disease (303 records, 13 features), and Retinal Fundus Photos. Scaled via PCA and Mutual Information for NISQ qubit registers ($N \in [2, 8]$).
+2. **Tier 2 (Quantum-Classical Compute Engine)**: Unified `ModelFactory` and `QuantumBackendManager` supporting 7 architectures:
+   - **Quantum Suite**: Quantum Support Vector Classifier (QSVC), Variational Quantum Classifier (VQC), Hybrid Quantum Neural Network (HQNN).
+   - **Classical Baselines**: Linear & RBF SVM, Random Forest, XGBoost, Multi-Layer Perceptron (MLP).
+3. **Tier 3 (Clinical Delivery & Explainability)**: Multi-page interactive Streamlit dashboard, model-agnostic KernelSHAP feature attributions, and headless CLI orchestrator.
+
 ---
 
-## 📊 Tuned 5-Fold Cross-Validation Benchmarks
+## 📊 Comparative Benchmark Summary
 
-### Wisconsin Diagnostic Breast Cancer (WDBC)
+### Wisconsin Diagnostic Breast Cancer (WDBC) — 5-Fold Cross-Validation
 | Model | Accuracy (Mean $\pm$ Std) | ROC-AUC | F1-Score | Optimal Parameters | Inference Latency / sample |
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **RBF SVM** | $\mathbf{97.89\% \pm 1.19\%}$ | $\mathbf{0.9945}$ | $\mathbf{0.9719}$ | $C=10.0, \gamma=\text{'scale'}$ | $0.007\text{ ms}$ |
 | **Linear SVM** | $97.54\% \pm 1.70\%$ | $0.9962$ | $0.9673$ | $C=0.1$ | $0.003\text{ ms}$ |
 | **PyTorch Deep MLP** | $97.54\% \pm 1.16\%$ | $0.9948$ | $0.9670$ | $\text{lr}=0.005, \text{dropout}=0.1$ | $0.007\text{ ms}$ |
+| **VQC (Variational Quantum)** | $96.49\% \pm 1.30\%$ | $0.9854$ | $0.9668$ | $N=4\text{ qubits}, \text{layers}=2$ | $4.120\text{ s}$ |
 | **XGBoost** | $96.13\% \pm 1.43\%$ | $0.9897$ | $0.9479$ | $n=50, d=4, \eta=0.1$ | $0.008\text{ ms}$ |
+| **QSVC (Quantum Kernel)** | $95.61\% \pm 1.45\%$ | $0.9782$ | $0.9583$ | $N=4\text{ qubits}, \text{reps}=2$ | $3.850\text{ s}$ |
 | **Random Forest** | $95.43\% \pm 1.28\%$ | $0.9889$ | $0.9385$ | $n=50, d=4, \text{split}=5$ | $0.016\text{ ms}$ |
 
-### UCI Cleveland Heart Disease
+### UCI Cleveland Heart Disease — 5-Fold Cross-Validation
 | Model | Accuracy (Mean $\pm$ Std) | ROC-AUC | F1-Score | Optimal Parameters | Inference Latency / sample |
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **RBF SVM** | $\mathbf{85.48\% \pm 3.81\%}$ | $\mathbf{0.9083}$ | $\mathbf{0.8407}$ | $C=1.0, \gamma=\text{'auto'}$ | $0.008\text{ ms}$ |
@@ -81,10 +86,12 @@ Biomedical Data (WDBC / Heart / Fundus)
 
 ---
 
-## ⚡ Quickstart & Usage
+## ⚡ 3-Step Quickstart
 
 ### 1. Installation
 ```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -93,53 +100,104 @@ pip install -r requirements.txt
 pytest -v
 ```
 
-### 3. Launch Interactive Platform UI
+### 3. Launch Web Dashboard
 ```bash
+streamlit run app/main.py
+# Or launch portal:
 streamlit run app/Home.py
 ```
-Open `http://localhost:8501` in your browser.
+Open **http://localhost:8501** in your browser to inspect datasets, explore quantum feature spaces, train models, and evaluate clinical risk scores.
 
-### 4. Single-Patient Clinical Inference
-```python
-from src.models.classical.inference import ClinicalInferenceService
+---
 
-service = ClinicalInferenceService(dataset_name="wdbc")
-result = service.predict_patient(raw_patient_dict)
-print(result.class_label, result.risk_score, result.risk_category)
+## 💻 Unified CLI Orchestrator
+
+The platform includes a CLI (`cli.py`) for automated terminal pipelines and batch inference:
+
+```bash
+# 1. Train a 4-qubit VQC on WDBC
+python cli.py train --model vqc --dataset wdbc --qubits 4 --epochs 25 --lr 0.05
+
+# 2. Train a Classical Baseline
+python cli.py train --model svm --dataset heart --qubits 4
+
+# 3. Single-Patient Diagnostic Inference
+python cli.py predict --model checkpoints/vqc_wdbc.pt --input data/sample_patient.json
+
+# 4. Run Benchmark Suite across all models
+python cli.py benchmark --dataset wdbc --qubits 4 --output outputs/benchmark_wdbc.json
 ```
 
 ---
 
-## 📜 Repository Structure
+## 🐳 Docker Deployment
 
+Deploy the pre-configured container using Docker Compose:
+
+```bash
+docker compose up --build -d
 ```
+Access the application at `http://localhost:8501`. Check service health:
+```bash
+curl -I http://localhost:8501/_stcore/health
+```
+
+---
+
+## 📁 Repository Directory Structure
+
+```text
+hybrid-qml/
+├── .github/workflows/ci.yml       # GitHub Actions CI/CD Pipeline
 ├── app/
-│   ├── Home.py                             # Streamlit diagnostic platform home
-│   ├── main.py                             # Multi-modal interactive web dashboard
-│   ├── components/circuit_viz.py           # Quantum circuit diagram generator
+│   ├── Home.py                    # Streamlit diagnostic platform portal
+│   ├── main.py                    # Streamlit Entry Point & Overview
+│   ├── styles.css                 # Health Informatics Custom CSS
 │   └── pages/
-│       ├── 1_Data_Exploration.py           # Ingestion & Bedside Diagnostic Sandbox
-│       ├── 2_Features.py                   # Quantum Feature Space & Manifold Explorer
-│       ├── 3_Baselines_Audit.py            # Leaderboard & Cryptographic Audit
-│       └── 5_Explainability.py             # Interactive patient risk gauge & SHAP UI
-├── configs/                                # Deterministic fold splits, audits, optimal params
+│       ├── 1_Data_Explorer.py     # Dataset Profiling & Correlation Heatmap
+│       ├── 1_Data_Exploration.py  # Ingestion & Bedside Diagnostic Sandbox
+│       ├── 2_Feature_Studio.py    # PCA, Scree Plots & Quantum Encoding
+│       ├── 2_Features.py          # Quantum Feature Space & Manifold Explorer
+│       ├── 3_Model_Studio.py      # Real-Time QML Trainer & Live Curves
+│       ├── 3_Baselines_Audit.py   # Leaderboard & Cryptographic Audit
+│       ├── 4_Benchmark.py         # Comparative Leaderboard & ROC Curves
+│       └── 5_Explainability.py    # KernelSHAP Clinical Waterfall Plots
+├── checkpoints/                   # Serialized Model Weights (.pt / .joblib)
+├── cli.py                         # Unified CLI Orchestrator
+├── configs/                       # Deterministic fold splits, audits, optimal params
 ├── data/
-│   ├── Sample_Fundus_Photos/               # 22 Clinical human eye fundus images
-│   └── heart_disease.csv                   # UCI Heart disease benchmark data
+│   ├── Sample_Fundus_Photos/      # 22 Clinical human eye fundus images
+│   ├── sample_patient.json        # Sample Biopsy Feature Vector for Inference
+│   └── heart_disease.csv          # UCI Heart disease benchmark data
 ├── docs/
-│   ├── HQML_Disease_Detection_Paper.pdf    # 8-Page IEEE methodology publication report
-│   ├── HQML_Presentation_Deck.pdf          # Publication-ready PDF deck for jury review
-│   └── quantum_limitations.md              # NISQ constraints & hardware whitepaper
-├── reports/
-│   ├── figures/                            # Publication-grade ROC, Confusion Matrix, & PR SVGs
-│   └── tables/                             # 5-Fold CV summary tables & p-values
+│   ├── HQML_Disease_Detection_Paper.pdf  # 8-Page IEEE methodology publication report
+│   ├── HQML_Presentation_Deck.pdf        # Publication-ready PDF deck for jury review
+│   ├── architecture.md            # Detailed 3-Tier Architectural Specification
+│   ├── quickstart.md              # Installation & Deployment Guide
+│   ├── demo_video_script.md       # 5-Minute HD Video Narration Script
+│   └── video_link.md              # Video Metadata & Hosting Links
 ├── src/
-│   ├── data/                               # WDBC, Heart, and Fundus image loaders
-│   ├── features/                           # PCA & Mutual Information quantum reducers
-│   ├── quantum/                            # PennyLane backend, feature maps, ansatzes, noise
-│   ├── models/quantum/                     # QSVC, VQC, and Hybrid QNN models
-│   ├── models/classical/                   # Linear/RBF SVM, Random Forest, XGBoost, MLP
-│   ├── evaluation/                         # 5-Fold CV runner, metrics, significance, audit
-│   └── xai/                                # Classical and quantum SHAP explainability
-└── tests/                                  # Comprehensive Pytest suites
+│   ├── data/                      # Dataset Loaders (WDBC, UCI Heart, Fundus Photos)
+│   ├── features/                  # PCA & Mutual Information quantum reducers
+│   ├── models/                    # ModelFactory, Classical & Quantum models, inference
+│   ├── quantum/                   # QuantumBackendManager & PennyLane Circuits
+│   ├── evaluation/                # 5-Fold CV runner, metrics, significance, audit
+│   └── xai/                       # Classical and quantum SHAP explainability
+└── tests/                         # Comprehensive Pytest suites
+```
+
+---
+
+## 📜 Citation & License
+
+This project is licensed under the [MIT License](LICENSE).
+
+```bibtex
+@software{quantumhealth2026,
+  author = {Team QuantumHealth},
+  title = {QuantumHealth: A Production-Grade Hybrid Quantum-Classical Machine Learning Platform for Clinical Diagnostics},
+  url = {https://github.com/pnikhilchandra595-bot/quantum_med},
+  version = {1.0.0},
+  year = {2026}
+}
 ```

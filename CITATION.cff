@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "QuantumHealth: A Production-Grade Hybrid Quantum-Classical Machine Learning Platform for Clinical Diagnostics"
+version: 1.0.0
+date-released: 2026-10-16
+url: "https://github.com/quantumhealth/hybrid-qml"
+repository-code: "https://github.com/quantumhealth/hybrid-qml"
+license: MIT
+authors:
+  - family-names: "Team QuantumHealth"
+    given-names: "Research Group"
+    affiliation: "Quantum Machine Learning Lab"
+keywords:
+  - "quantum computing"
+  - "quantum machine learning"
+  - "pennylane"
+  - "pytorch"
+  - "variational quantum classifier"
+  - "qsvc"
+  - "oncology"
+  - "cardiology"
+  - "clinical diagnostics"
+  - "explainable ai"
+  - "streamlit"

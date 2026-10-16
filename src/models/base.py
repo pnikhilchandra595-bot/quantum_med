@@ -1,7 +1,7 @@
 """Base Model Interface for Classical and Hybrid Quantum-Classical Classifiers.
 
 Module: src.models.base
-Owner: Member A & Member C
+Owner: Member A, Member C & Member D
 Deliverable: D5 (Unified ML Model Interface)
 """
 
@@ -9,8 +9,15 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Tuple, Union
+
 import numpy as np
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+)
 
 
 class BaseModel(ABC):
@@ -20,8 +27,7 @@ class BaseModel(ABC):
         self.name = name or self.__class__.__name__
         self.random_state = random_state
         self.params = kwargs
-        self.model: Any = None
-        self.is_fitted: bool = False
+        self.is_fitted = False
 
     @abstractmethod
     def fit(
@@ -29,6 +35,7 @@ class BaseModel(ABC):
         X: np.ndarray,
         y: np.ndarray,
         val_data: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+        **kwargs: Any,
     ) -> "BaseModel":
         """Train model on training data with optional validation set for monitoring."""
         pass
@@ -52,22 +59,30 @@ class BaseModel(ABC):
         X_arr = np.asarray(X, dtype=np.float64)
         y_arr = np.asarray(y, dtype=np.int64)
 
-        y_pred = self.predict(X_arr)
+        preds = self.predict(X_arr)
         proba = self.predict_proba(X_arr)
-        y_score = proba[:, 1] if proba.shape[1] == 2 else proba.ravel()
+        y_score = proba[:, 1] if (proba.ndim == 2 and proba.shape[1] == 2) else proba.ravel()
 
-        metrics = {
-            "accuracy": float(accuracy_score(y_arr, y_pred)),
-            "precision": float(precision_score(y_arr, y_pred, zero_division=0)),
-            "recall": float(recall_score(y_arr, y_pred, zero_division=0)),
-            "f1": float(f1_score(y_arr, y_pred, zero_division=0)),
-        }
+        acc = float(accuracy_score(y_arr, preds))
+        prec = float(precision_score(y_arr, preds, zero_division=0))
+        rec = float(recall_score(y_arr, preds, zero_division=0))
+        f1 = float(f1_score(y_arr, preds, zero_division=0))
         try:
-            metrics["roc_auc"] = float(roc_auc_score(y_arr, y_score))
-        except ValueError:
-            metrics["roc_auc"] = float("nan")
+            auc = float(roc_auc_score(y_arr, y_score))
+        except Exception:
+            auc = 0.5
 
-        return metrics
+        return {
+            "accuracy": acc,
+            "precision": prec,
+            "recall": rec,
+            "f1": f1,
+            "roc_auc": auc,
+        }
+
+    def get_params(self, deep: bool = True) -> Dict[str, Any]:
+        """Return model hyperparameters."""
+        return self.params
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', fitted={self.is_fitted})"

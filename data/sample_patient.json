@@ -1,0 +1,4 @@
+{
+  "description": "Synthetic patient biopsy feature vector (reduced to 4 principal components)",
+  "features": [-0.852, 0.412, -0.129, 0.631]
+}

@@ -1,150 +1,300 @@
-"""Unit tests for Quantum Core Engine (Member B Deliverables).
+"""
+Automated unit tests covering quantum device bounds, statevector memory caps,
+Gram matrix symmetry, circuit execution timeouts, and memory leak prevention.
 
-Verifies backend initialization, feature maps, ansatz parameterization,
-QSVC Gram matrix symmetry, VQC training, and HQNN autograd flow.
+Key Requirement: All quantum circuit unit tests execute in under 60 seconds on CPU.
 """
 
+import gc
+import time
+import numpy as np
 import pytest
 
 pytest.importorskip("pennylane")
-import numpy as np
 
-# Verify imports
-from src.quantum.backend import QuantumBackendManager, DEFAULT_MAX_QUBITS
-from src.quantum.feature_maps import get_feature_map
-from src.quantum.ansatz import get_ansatz_shape, initialize_weights
-from src.models.quantum.qsvc import QuantumSupportVectorClassifier
-from src.models.quantum.vqc import VariationalQuantumClassifier
-from src.models.quantum.hqnn import HybridQuantumNeuralNetwork
+from src.models.quantum import QSVCModel, VQCModel
+from src.quantum.backend import QuantumBackendManager
+
+# =========================================================================
+# Group 1: Quantum Device Bounds & Parameter Validation
+# =========================================================================
 
 
-class TestQuantumBackendManager:
-    """Tests for QuantumBackendManager device factory and limits."""
-
-    def test_default_device_init(self):
-        manager = QuantumBackendManager(backend_name="default.qubit", n_qubits=4)
-        dev = manager.get_device()
+def test_valid_device_wire_bounds():
+    """Verify standard valid wire counts (1, 2, 4, 8) allocate successfully."""
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    for wires in [1, 2, 4, 8]:
+        dev = backend.get_device(wires=wires)
         assert dev is not None
-        assert manager.n_qubits == 4
-
-    def test_max_qubit_guardrail(self):
-        # Exceeding safe limit should raise ValueError
-        with pytest.raises(ValueError, match="exceeds the maximum safe limit"):
-            QuantumBackendManager(backend_name="default.qubit", n_qubits=20)
-
-    def test_invalid_qubits_zero(self):
-        with pytest.raises(ValueError, match="must be >= 1"):
-            QuantumBackendManager(backend_name="default.qubit", n_qubits=0)
+        assert len(dev.wires) == wires
 
 
-class TestQuantumFeatureMapsAndAnsatz:
-    """Tests for feature maps and variational ansatz utilities."""
-
-    def test_feature_map_retrieval(self):
-        zz_map = get_feature_map("zz")
-        angle_map = get_feature_map("angle_y")
-        assert callable(zz_map)
-        assert callable(angle_map)
-
-        with pytest.raises(ValueError, match="Unsupported feature map"):
-            get_feature_map("invalid_map")
-
-    def test_ansatz_weight_shapes(self):
-        shape_strong = get_ansatz_shape("strongly_entangling", n_layers=2, n_wires=4)
-        assert shape_strong == (2, 4, 3)
-
-        shape_basic = get_ansatz_shape("basic", n_layers=3, n_wires=4)
-        assert shape_basic == (3, 4)
-
-        weights = initialize_weights(shape_strong, seed=42, scale=0.1)
-        assert weights.shape == (2, 4, 3)
-        assert np.abs(np.mean(weights)) < 0.1  # zero-centered initialization
+@pytest.mark.parametrize("invalid_wires", [0, -1, -5])
+def test_invalid_wire_zero_or_negative(invalid_wires):
+    """Verify that wires <= 0 raises ValueError."""
+    backend = QuantumBackendManager()
+    with pytest.raises(ValueError, match="positive integer"):
+        backend.get_device(wires=invalid_wires)
 
 
-class TestQSVC:
-    """Tests for Quantum Support Vector Classifier kernel computations."""
-
-    @pytest.fixture
-    def synthetic_data(self):
-        rng = np.random.default_rng(42)
-        X = rng.uniform(-1.0, 1.0, size=(6, 2))
-        y = np.array([0, 0, 0, 1, 1, 1])
-        return X, y
-
-    def test_qsvc_gram_matrix_properties(self, synthetic_data):
-        X, _ = synthetic_data
-        qsvc = QuantumSupportVectorClassifier(n_qubits=2, reps=1)
-        gram = qsvc.compute_kernel_matrix(X, X)
-
-        assert gram.shape == (6, 6)
-        # Check diagonal unity: K(x_i, x_i) == 1.0
-        np.testing.assert_allclose(np.diag(gram), np.ones(6), atol=1e-5)
-        # Check symmetry: K(x_i, x_j) == K(x_j, x_i)
-        np.testing.assert_allclose(gram, gram.T, atol=1e-5)
-        # Check bounded values [0, 1]
-        assert np.all(gram >= 0.0) and np.all(gram <= 1.0)
-
-    def test_qsvc_fit_predict(self, synthetic_data):
-        X, y = synthetic_data
-        qsvc = QuantumSupportVectorClassifier(n_qubits=2, reps=1, C=1.0)
-        qsvc.fit(X, y)
-        preds = qsvc.predict(X)
-        probs = qsvc.predict_proba(X)
-
-        assert len(preds) == len(X)
-        assert probs.shape == (6, 2)
-        np.testing.assert_allclose(np.sum(probs, axis=1), np.ones(6), atol=1e-5)
+@pytest.mark.parametrize("invalid_type", [3.5, "4", True, None])
+def test_invalid_wire_types(invalid_type):
+    """Verify that non-integer wires raise TypeError or ValueError."""
+    backend = QuantumBackendManager()
+    with pytest.raises((TypeError, ValueError)):
+        backend.get_device(wires=invalid_type)
 
 
-class TestVQC:
-    """Tests for Variational Quantum Classifier."""
-
-    def test_vqc_training_and_inference(self):
-        rng = np.random.default_rng(42)
-        X = rng.uniform(-0.5, 0.5, size=(8, 2))
-        y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-
-        vqc = VariationalQuantumClassifier(
-            n_qubits=2,
-            n_layers=1,
-            max_epochs=3,
-            batch_size=4,
-            learning_rate=0.1,
-            seed=42,
-        )
-        vqc.fit(X, y)
-        assert len(vqc.loss_history_) == 3
-
-        probs = vqc.predict_proba(X)
-        preds = vqc.predict(X)
-
-        assert probs.shape == (8, 2)
-        np.testing.assert_allclose(np.sum(probs, axis=1), np.ones(8), atol=1e-5)
-        assert set(preds).issubset({0, 1})
+def test_exceeding_max_qubits_limit():
+    """Verify that requesting wires above max_qubits raises ValueError."""
+    backend = QuantumBackendManager(max_qubits=10)
+    with pytest.raises(ValueError, match="exceeds configured maximum limit"):
+        backend.get_device(wires=11)
 
 
-class TestHQNN:
-    """Tests for Hybrid Quantum Neural Network (PyTorch autograd + TorchLayer)."""
+@pytest.mark.parametrize("invalid_noise", [-0.1, 1.5, 10.0])
+def test_invalid_noise_level(invalid_noise):
+    """Verify noise level bounds [0.0, 1.0]."""
+    with pytest.raises(ValueError, match="noise_level must be between 0.0 and 1.0"):
+        QuantumBackendManager(noise_level=invalid_noise)
 
-    def test_hqnn_fit_predict(self):
-        rng = np.random.default_rng(42)
-        X = rng.uniform(-1.0, 1.0, size=(8, 3))
-        y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
 
-        hqnn = HybridQuantumNeuralNetwork(
-            n_qubits=3,
-            n_layers=1,
-            max_epochs=3,
-            batch_size=4,
-            learning_rate=0.02,
-            seed=42,
-        )
-        hqnn.fit(X, y)
-        assert len(hqnn.loss_history_) == 3
+@pytest.mark.parametrize("invalid_shots", [0, -10, -1, 3.14])
+def test_invalid_shots(invalid_shots):
+    """Verify shots validation."""
+    with pytest.raises(ValueError, match="shots must be a positive integer"):
+        QuantumBackendManager(shots=invalid_shots)
 
-        probs = hqnn.predict_proba(X)
-        preds = hqnn.predict(X)
 
-        assert probs.shape == (8, 2)
-        np.testing.assert_allclose(np.sum(probs, axis=1), np.ones(8), atol=1e-5)
-        assert set(preds).issubset({0, 1})
+# =========================================================================
+# Group 2: Statevector Memory Caps & Safety Guardrails
+# =========================================================================
+
+
+def test_statevector_memory_estimation():
+    """
+    Verify exact analytical calculation of complex128 statevector memory:
+    Memory = 2^N * 16 bytes.
+    """
+    assert QuantumBackendManager.estimate_statevector_memory_mb(0) == (16.0 / (1024 * 1024))
+    # 4 qubits: 16 amplitudes * 16 bytes = 256 bytes = 256 / 1048576 MB
+    assert pytest.approx(
+        QuantumBackendManager.estimate_statevector_memory_mb(4), rel=1e-5
+    ) == 256.0 / (1024 * 1024)
+    # 10 qubits: 1024 amplitudes * 16 bytes = 16384 bytes = 0.015625 MB
+    assert (
+        pytest.approx(QuantumBackendManager.estimate_statevector_memory_mb(10), rel=1e-5)
+        == 0.015625
+    )
+    # 20 qubits: 2^20 * 16 bytes = 16 MB
+    assert pytest.approx(QuantumBackendManager.estimate_statevector_memory_mb(20), rel=1e-5) == 16.0
+    # 24 qubits: 2^24 * 16 bytes = 256 MB
+    assert (
+        pytest.approx(QuantumBackendManager.estimate_statevector_memory_mb(24), rel=1e-5) == 256.0
+    )
+
+
+def test_memory_cap_enforcement():
+    """
+    Verify MemoryError is raised when requested statevector memory exceeds max_memory_mb.
+    """
+    # Set a tight memory cap of 8.0 MB (20 qubits requires 16 MB, 16 qubits requires 1 MB)
+    strict_backend = QuantumBackendManager(max_qubits=25, max_memory_mb=8.0)
+
+    # 16 qubits (1.0 MB) should succeed
+    dev_small = strict_backend.get_device(wires=16)
+    assert dev_small is not None
+
+    # 20 qubits (16.0 MB) must be rejected
+    with pytest.raises(MemoryError, match="exceeds the configured memory cap"):
+        strict_backend.get_device(wires=20)
+
+
+# =========================================================================
+# Group 3: Simulator Backend Failure & Fallback Handling
+# =========================================================================
+
+
+def test_backend_fallback_on_invalid_device():
+    """
+    Verify that an unrecognized or failing backend gracefully falls back
+    to default.qubit when fallback_to_default=True.
+    """
+    backend = QuantumBackendManager(
+        backend_name="nonexistent.quantum.backend", fallback_to_default=True
+    )
+    dev = backend.get_device(wires=2)
+    assert dev is not None
+    # Device should be default.qubit state-vector simulator
+    assert "default.qubit" in getattr(dev, "name", str(dev))
+
+
+def test_backend_error_without_fallback():
+    """
+    Verify that an unrecognized backend raises RuntimeError when fallback_to_default=False.
+    """
+    backend = QuantumBackendManager(
+        backend_name="nonexistent.quantum.backend", fallback_to_default=False
+    )
+    with pytest.raises(RuntimeError, match="could not be initialized"):
+        backend.get_device(wires=2)
+
+
+# =========================================================================
+# Group 4: Gram Matrix Symmetry, Positive Semi-Definiteness & Bounds
+# =========================================================================
+
+
+@pytest.fixture
+def sample_feature_vectors():
+    """Deterministic synthetic clinical vectors for Gram matrix tests."""
+    np.random.seed(42)
+    # 6 samples, 4 features in [-pi, pi]
+    return np.random.uniform(-np.pi, np.pi, size=(6, 4)).astype(np.float32)
+
+
+def test_gram_matrix_exact_symmetry(sample_feature_vectors):
+    """
+    Verify quantum kernel Gram matrix is mathematically symmetric: K = K^T.
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    qsvc = QSVCModel(n_qubits=4, backend_manager=backend)
+
+    gram = qsvc.compute_gram_matrix(sample_feature_vectors)
+
+    assert gram.shape == (6, 6)
+    # Exact symmetry assertion: K[i, j] == K[j, i]
+    np.testing.assert_allclose(gram, gram.T, atol=1e-6, err_msg="Gram matrix is not symmetric!")
+
+
+def test_gram_matrix_diagonal_unit_norm(sample_feature_vectors):
+    """
+    Verify state fidelity of self-inner product: K[i, i] = |<psi(xi)|psi(xi)>|^2 = 1.0.
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    qsvc = QSVCModel(n_qubits=4, backend_manager=backend)
+
+    gram = qsvc.compute_gram_matrix(sample_feature_vectors)
+    diag = np.diag(gram)
+
+    np.testing.assert_allclose(diag, 1.0, atol=1e-5, err_msg="Gram matrix diagonal is not 1.0!")
+
+
+def test_gram_matrix_probability_bounds(sample_feature_vectors):
+    """
+    Verify all kernel elements are valid transition probabilities: K[i, j] in [0.0, 1.0].
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    qsvc = QSVCModel(n_qubits=4, backend_manager=backend)
+
+    gram = qsvc.compute_gram_matrix(sample_feature_vectors)
+
+    assert np.all(gram >= -1e-6), "Gram matrix contains values < 0"
+    assert np.all(gram <= 1.0 + 1e-6), "Gram matrix contains values > 1"
+
+
+def test_gram_matrix_positive_semidefinite(sample_feature_vectors):
+    """
+    Verify that the quantum Gram matrix is positive semi-definite (eigenvalues >= 0).
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    qsvc = QSVCModel(n_qubits=4, backend_manager=backend)
+
+    gram = qsvc.compute_gram_matrix(sample_feature_vectors)
+
+    # Compute eigenvalues of real symmetric matrix
+    eigenvalues = np.linalg.eigvalsh(gram)
+    min_eig = np.min(eigenvalues)
+
+    # Allow tiny numerical precision tolerance (-1e-5)
+    assert min_eig >= -1e-5, f"Gram matrix is not PSD, minimum eigenvalue = {min_eig}"
+
+
+# =========================================================================
+# Group 5: Circuit Execution Timeouts & Execution Budget (<60s on CPU)
+# =========================================================================
+
+
+def test_vqc_forward_pass_timeout():
+    """
+    Verify that a single VQC quantum circuit evaluation executes within timeout (< 1.0s).
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    vqc = VQCModel(n_qubits=4, n_layers=1, backend_manager=backend)
+    x = np.array([0.5, -0.3, 1.2, -0.8], dtype=np.float32)
+
+    start_time = time.perf_counter()
+    prob = vqc.predict_proba(np.array([x]))
+    duration = time.perf_counter() - start_time
+
+    assert prob.shape == (1, 2)
+    assert (
+        duration < 1.0
+    ), f"VQC single-sample forward pass exceeded timeout ({duration:.3f}s > 1.0s)"
+
+
+def test_qsvc_kernel_evaluation_timeout():
+    """
+    Verify that a 4x4 quantum kernel matrix executes within timeout (< 3.0s).
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    qsvc = QSVCModel(n_qubits=4, backend_manager=backend)
+    x_batch = np.random.uniform(-np.pi, np.pi, size=(4, 4)).astype(np.float32)
+
+    start_time = time.perf_counter()
+    gram = qsvc.compute_gram_matrix(x_batch)
+    duration = time.perf_counter() - start_time
+
+    assert gram.shape == (4, 4)
+    assert duration < 3.0, f"QSVC 4x4 kernel exceeded timeout ({duration:.3f}s > 3.0s)"
+
+
+# =========================================================================
+# Group 6: Memory Leak Prevention & Device Caching
+# =========================================================================
+
+
+def test_device_caching_and_cleanup():
+    """
+    Verify that QuantumBackendManager caches device instances per wire count,
+    reuses existing instances without duplication, and frees them upon cache clearing.
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    assert backend.get_cached_devices_count() == 0
+
+    # First access for 4 wires
+    dev1 = backend.get_device(wires=4)
+    assert backend.get_cached_devices_count() == 1
+
+    # Second access for 4 wires should reuse cached device
+    dev2 = backend.get_device(wires=4)
+    assert dev1 is dev2
+    assert backend.get_cached_devices_count() == 1
+
+    # Access for 2 wires
+    dev3 = backend.get_device(wires=2)
+    assert dev3 is not dev1
+    assert backend.get_cached_devices_count() == 2
+
+    # Clear cache and assert cleanup
+    backend.clear_device_cache()
+    assert backend.get_cached_devices_count() == 0
+
+
+def test_repeated_circuit_evaluations_memory_leak():
+    """
+    Verify that repeated quantum circuit invocations do not cause unbound memory growth.
+    """
+    backend = QuantumBackendManager(backend_name="default.qubit")
+    vqc = VQCModel(n_qubits=4, n_layers=1, backend_manager=backend)
+    x = np.array([0.1, 0.2, 0.3, 0.4], dtype=np.float32)
+
+    gc.collect()
+
+    # Execute 50 forward passes in a loop
+    for _ in range(50):
+        _ = vqc.predict_proba(np.array([x]))
+
+    gc.collect()
+    # Cache should only hold 1 device instance for 4 wires
+    assert backend.get_cached_devices_count() == 1

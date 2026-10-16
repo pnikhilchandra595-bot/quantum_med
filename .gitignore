@@ -35,11 +35,18 @@ venv.bak/
 # Pytest & testing caches
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+.cache
+nosetests.xml
+coverage.xml
 *.log
 
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
 
 # Local IDE and Agent system files
 .gemini/
@@ -47,8 +54,21 @@ htmlcov/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS metadata
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Model checkpoints & data caches
+checkpoints/*.pt
+checkpoints/*.pth
+checkpoints/*.joblib
+checkpoints/*.pkl
+!checkpoints/.gitkeep
+data/cache/
+data/raw/*.zip
+data/raw/*.tar.gz
+outputs/
+logs/

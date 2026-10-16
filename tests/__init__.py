@@ -1,1 +1,1 @@
-"""Test package for HQML platform."""
+"""Test suite package for hybrid quantum-classical machine learning platform."""

@@ -1,3 +1,3 @@
-"""HQML-EDD Hybrid Quantum Machine Learning Platform Source Package."""
+"""Hybrid Quantum-Classical Machine Learning Platform for Clinical Diagnostics (HQML-EDD)."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
