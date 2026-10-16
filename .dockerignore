@@ -1,0 +1,17 @@
+.git
+.gitignore
+.github
+.venv
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+docs/
+*.md
+LICENSE
+CITATION.cff
+.pre-commit-config.yaml

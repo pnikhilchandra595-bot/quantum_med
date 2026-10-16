@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.log
 
 # C extensions
 *.so
@@ -27,26 +26,61 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-venv/
-.venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
 env/
+venv/
 ENV/
 env.bak/
 venv.bak/
 
-# Testing & Coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Streamlit
-.streamlit/
-
-# IDE & OS
-.idea/
+# IDE & editors
 .vscode/
+.idea/
 *.swp
 *.swo
+*~
 .DS_Store
-Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Model checkpoints & data caches
+checkpoints/*.pt
+checkpoints/*.pth
+checkpoints/*.joblib
+checkpoints/*.pkl
+!checkpoints/.gitkeep
+data/cache/
+data/raw/*.zip
+data/raw/*.tar.gz
+outputs/
+logs/
+*.log

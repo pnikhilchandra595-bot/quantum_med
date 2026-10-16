@@ -1,1 +1,3 @@
-"""Test package for HQML-EDD platform."""
+"""
+Test suite package for hybrid-qml-health.
+"""
