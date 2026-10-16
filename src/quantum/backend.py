@@ -95,7 +95,10 @@ class QuantumBackendManager:
         enforcing safety bounds and handling simulator fallbacks.
         """
         if wires is None:
-            wires = self.n_qubits or 4
+            if self.n_qubits is not None:
+                wires = self.n_qubits
+            else:
+                raise TypeError("wires must be an integer, got None")
         self.validate_wire_bounds(wires)
 
         cache_key = wires

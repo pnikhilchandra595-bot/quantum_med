@@ -2,6 +2,7 @@
 Data Loader and Preprocessing Pipeline for WDBC and Heart Disease Datasets.
 """
 
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
@@ -88,6 +89,11 @@ def get_raw_dataframe(name: str = "wdbc") -> pd.DataFrame:
             df["target"] = bunch.target
         return df
     elif name_clean in ["heart", "heart_disease", "cardiac"]:
+        for p in ["data/heart_disease.csv", "heart_disease.csv"]:
+            if Path(p).exists():
+                df = pd.read_csv(p)
+                if "target" in df.columns:
+                    return df
         return generate_synthetic_heart_disease()
     else:
         raise ValueError(f"Unknown dataset '{name}'. Available: {AVAILABLE_DATASETS}")
@@ -121,6 +127,19 @@ def get_dataset_metadata(name: str = "wdbc") -> Dict[str, Any]:
     raise ValueError(f"Unknown dataset '{name}'. Available: {AVAILABLE_DATASETS}")
 
 
+class DatasetResult(dict):
+    """Hybrid dictionary that supports standard dict lookups and 4-tuple unpacking."""
+
+    def __iter__(self):
+        yield self.get("X_raw")
+        yield self.get("y_raw")
+        yield self.get("feature_names")
+        yield self.get("target_names")
+
+    def __len__(self):
+        return 4
+
+
 def load_dataset(
     name: str = "wdbc",
     n_qubits: Optional[int] = 4,
@@ -129,16 +148,16 @@ def load_dataset(
     angle_range: Tuple[float, float] = (-np.pi, np.pi),
     test_size: float = 0.2,
     random_state: int = 42,
-) -> Dict[str, Any]:
+    scaled: Optional[bool] = None,
+    as_tuple: bool = False,
+    **kwargs: Any,
+) -> Any:
     """
     Load, preprocess, reduce, and split a dataset for hybrid quantum-classical ML.
 
-    Returns dictionary with:
-        - X_train, X_test, y_train, y_test
-        - feature_names
-        - reducer (fitted PCA or SelectKBest)
-        - scaler (fitted Scaler)
-        - metadata
+    Returns:
+        DatasetResult dictionary supporting both dict lookups and 4-tuple unpacking
+        (X, y, feature_names, target_names).
     """
     df = get_raw_dataframe(name)
     target_col = "target"
@@ -146,6 +165,12 @@ def load_dataset(
     feature_cols = [c for c in df.columns if c != target_col]
     X_raw = df[feature_cols].values
     y = df[target_col].values.astype(int)
+
+    name_clean = name.lower().strip()
+    target_names = ["Malignant", "Benign"] if name_clean in ["wdbc", "breast_cancer"] else ["Absence", "Presence"]
+
+    if scaled is False or as_tuple is True:
+        return X_raw, y, feature_cols, target_names
 
     # Train-test split before scaling to prevent leakage
     X_tr_raw, X_te_raw, y_train, y_test = train_test_split(
@@ -193,16 +218,19 @@ def load_dataset(
     else:
         q_scaler = None
 
-    return {
+    return DatasetResult({
         "X_train": np.asarray(X_train, dtype=np.float32),
         "X_test": np.asarray(X_test, dtype=np.float32),
         "y_train": np.asarray(y_train, dtype=np.int64),
         "y_test": np.asarray(y_test, dtype=np.int64),
+        "X_raw": X_raw,
+        "y_raw": y,
         "feature_names": feature_names,
+        "target_names": target_names,
         "raw_features": feature_cols,
         "scaler": scaler,
         "quantum_scaler": q_scaler,
         "reducer": reducer,
         "dataset_name": name,
         "metadata": get_dataset_metadata(name),
-    }
+    })

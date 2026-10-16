@@ -15,7 +15,55 @@ root_dir = Path(__file__).resolve().parent.parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
-from src.data.loader import get_dataset_metadata  # noqa: E402
+from src.data.loader import get_dataset_metadata, load_dataset  # noqa: E402
+
+
+def load_and_prepare_models():
+    """Load dataset, train classical and quantum models on 6 PCs, and prepare explainers."""
+    from sklearn.decomposition import PCA
+    from sklearn.model_selection import train_test_split
+    from src.models.classical.trees import RandomForestModel, XGBoostModel
+    from src.models.classical.svm import RBFSVMModel, LinearSVMModel
+    from src.models.classical.mlp import MLPModel
+    from src.models.quantum.quantum_models import QSVCModel, VQCModel, HQNNModel
+    from src.xai.quantum_shap import QuantumKernelSHAP
+    from src.xai.classical_shap import ClassicalSHAPExplainer
+
+    X, y, feature_names, _ = load_dataset("wdbc", scaled=False)
+    pca = PCA(n_components=6, random_state=42)
+    X_k = pca.fit_transform(X)
+
+    component_names = [f"PC{i+1} (Qubit {i})" for i in range(6)]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_k, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+    models = {
+        "QSVC (Quantum Kernel)": QSVCModel(C=2.0, random_state=42).fit(X_train, y_train),
+        "VQC (Variational Quantum)": VQCModel(random_state=42).fit(X_train, y_train),
+        "HQNN (Hybrid Quantum NN)": HQNNModel(random_state=42).fit(X_train, y_train),
+        "Random Forest (Classical)": RandomForestModel(n_estimators=100, max_depth=5, random_state=42).fit(X_train, y_train),
+        "XGBoost (Classical)": XGBoostModel(random_state=42).fit(X_train, y_train),
+        "RBF SVM (Classical)": RBFSVMModel(random_state=42).fit(X_train, y_train),
+        "Linear SVM (Classical)": LinearSVMModel(random_state=42).fit(X_train, y_train),
+        "MLP (Classical)": MLPModel(random_state=42).fit(X_train, y_train),
+    }
+
+    bg = X_train[:30]
+    explainers = {
+        "QSVC (Quantum Kernel)": QuantumKernelSHAP(models["QSVC (Quantum Kernel)"], bg, component_names),
+        "VQC (Variational Quantum)": QuantumKernelSHAP(models["VQC (Variational Quantum)"], bg, component_names),
+        "HQNN (Hybrid Quantum NN)": QuantumKernelSHAP(models["HQNN (Hybrid Quantum NN)"], bg, component_names),
+        "Random Forest (Classical)": ClassicalSHAPExplainer(models["Random Forest (Classical)"], bg, component_names),
+        "XGBoost (Classical)": ClassicalSHAPExplainer(models["XGBoost (Classical)"], bg, component_names),
+        "RBF SVM (Classical)": ClassicalSHAPExplainer(models["RBF SVM (Classical)"], bg, component_names),
+        "Linear SVM (Classical)": ClassicalSHAPExplainer(models["Linear SVM (Classical)"], bg, component_names),
+        "MLP (Classical)": ClassicalSHAPExplainer(models["MLP (Classical)"], bg, component_names),
+    }
+
+    return X_train, X_test, y_train, y_test, component_names, models, explainers
+
 
 st.set_page_config(page_title="Explainability (XAI) | QuantumHealth", page_icon="🔍", layout="wide")
 

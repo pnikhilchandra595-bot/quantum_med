@@ -8,6 +8,7 @@ Tests:
 import os
 import importlib
 from pathlib import Path
+import numpy as np
 import pytest
 
 pytest.importorskip("pptx")

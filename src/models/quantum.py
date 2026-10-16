@@ -308,10 +308,13 @@ class HQNNModule(nn.Module if nn is not None else object):
         self.in_features = in_features
         self.n_qubits = n_qubits
 
-        @qml.qnode(dev, interface="torch", diff_method="parameter-shift")
+        diff_method = "backprop" if getattr(dev, "name", "") == "default.qubit" else "parameter-shift"
+
+        @qml.qnode(dev, interface="torch", diff_method=diff_method)
         def quantum_circuit(inputs, weights):
             for i in range(n_qubits):
-                qml.RY(inputs[i], wires=i)
+                angle = inputs[:, i] if inputs.ndim > 1 else inputs[i]
+                qml.RY(angle, wires=i)
             qml.StronglyEntanglingLayers(weights, wires=range(n_qubits))
             return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
 

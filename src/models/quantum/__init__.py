@@ -4,15 +4,14 @@ from src.models.quantum.qsvc import QuantumSupportVectorClassifier
 from src.models.quantum.vqc import VariationalQuantumClassifier
 from src.models.quantum.hqnn import HybridQuantumNeuralNetwork
 
-try:
-    from src.models.quantum.quantum_models import (
-        QSVCModel,
-        VQCModel,
-        HQNNModel,
-        compute_quantum_zz_kernel,
-    )
-except ImportError:
-    pass
+from src.models.quantum.pennylane_models import (
+    QSVCModel,
+    VQCModel,
+    HQNNModel,
+    HQNNModule,
+)
+
+from src.models.quantum.quantum_models import compute_quantum_zz_kernel
 
 __all__ = [
     "QuantumSupportVectorClassifier",
@@ -21,5 +20,6 @@ __all__ = [
     "QSVCModel",
     "VQCModel",
     "HQNNModel",
+    "HQNNModule",
     "compute_quantum_zz_kernel",
 ]
