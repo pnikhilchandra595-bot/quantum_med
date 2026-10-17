@@ -236,11 +236,58 @@ def list_models():
 
 @app.get("/api/v1/benchmark")
 def get_benchmark_results():
-    csv_path = WORKSPACE_ROOT / "reports" / "tables" / "benchmark_results.csv"
-    if csv_path.exists():
-        df = pd.read_csv(csv_path)
-        return {"benchmark_summary": df.to_dict(orient="records")}
+    for candidate in [
+        REPO_ROOT / "reports" / "tables" / "benchmark_results.csv",
+        BACKEND_ROOT / "checkpoints" / "benchmark_results.json",
+        BACKEND_ROOT / "configs" / "benchmark_results.json",
+    ]:
+        if candidate.exists():
+            if str(candidate).endswith(".csv"):
+                df = pd.read_csv(candidate)
+                return {"benchmark_summary": df.to_dict(orient="records")}
+            else:
+                with open(candidate, "r", encoding="utf-8") as f:
+                    return json.load(f)
     return {"message": "Run scripts/run_master_benchmark.py to generate benchmark results"}
+
+
+@app.get("/api/v1/benchmarks/multi-organ")
+def get_multi_organ_benchmarks():
+    """Return trained benchmark statistics across all 8 body organ systems (5,000 patients each)."""
+    for candidate in [
+        Path("backend/configs/multi_organ_benchmarks.json"),
+        Path("configs/multi_organ_benchmarks.json"),
+        Path("backend/checkpoints/multi_organ_benchmarks.json"),
+    ]:
+        if candidate.exists():
+            import json
+            with open(candidate, "r", encoding="utf-8") as f:
+                return json.load(f)
+    return {"message": "Multi-organ benchmarks not generated yet"}
+
+
+@app.get("/api/v1/datasets/multi-organ")
+def list_multi_organ_datasets():
+    """List 5,000-sample patient cohorts across 8 organ systems (40,000 total records)."""
+    data_dir = Path("backend/data/multi_organ_5000")
+    if not data_dir.exists():
+        data_dir = Path("data/multi_organ_5000")
+
+    organs = ["brain", "lung", "skin", "retina", "heart", "kidney", "breast", "liver"]
+    result = {}
+    for org in organs:
+        csv_file = data_dir / f"cohort_{org}_5000.csv"
+        exists = csv_file.exists()
+        result[org] = {
+            "status": "active" if exists else "missing",
+            "samples": 5000 if exists else 0,
+            "filepath": str(csv_file) if exists else None,
+        }
+    return {
+        "total_organ_systems": len(organs),
+        "total_patient_records": sum(v["samples"] for v in result.values()),
+        "organ_cohorts": result,
+    }
 
 
 @app.post("/api/v1/predict", response_model=PredictionResponse)

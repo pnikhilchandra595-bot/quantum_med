@@ -1,0 +1,386 @@
+{
+  "brain": {
+    "organ_name": "Brain & Nervous System",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.48
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.238
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.109
+      },
+      "MLP": {
+        "accuracy": 0.999,
+        "sensitivity": 0.998,
+        "specificity": 1.0,
+        "f1_score": 0.999,
+        "roc_auc": 1.0,
+        "latency_ms": 0.457
+      },
+      "Quantum QSVC": {
+        "accuracy": 0.999,
+        "sensitivity": 0.998,
+        "specificity": 1.0,
+        "f1_score": 0.999,
+        "roc_auc": 1.0,
+        "latency_ms": 0.154
+      }
+    }
+  },
+  "lung": {
+    "organ_name": "Pulmonary & Respiratory",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.333
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.131
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.057
+      },
+      "MLP": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.366
+      },
+      "Quantum QSVC": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.114
+      }
+    }
+  },
+  "skin": {
+    "organ_name": "Dermatology & Skin Lesions",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.339
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.075
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.048
+      },
+      "MLP": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.431
+      },
+      "Quantum QSVC": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.115
+      }
+    }
+  },
+  "retina": {
+    "organ_name": "Ophthalmic Retina",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.367
+      },
+      "XGBoost": {
+        "accuracy": 0.998,
+        "sensitivity": 1.0,
+        "specificity": 0.996,
+        "f1_score": 0.998,
+        "roc_auc": 1.0,
+        "latency_ms": 0.08
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.039
+      },
+      "MLP": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.414
+      },
+      "Quantum QSVC": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.147
+      }
+    }
+  },
+  "heart": {
+    "organ_name": "Cardiovascular & Vascular",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.312
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.071
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.107
+      },
+      "MLP": {
+        "accuracy": 0.999,
+        "sensitivity": 1.0,
+        "specificity": 0.998,
+        "f1_score": 0.999,
+        "roc_auc": 1.0,
+        "latency_ms": 0.513
+      },
+      "Quantum QSVC": {
+        "accuracy": 0.996,
+        "sensitivity": 0.996,
+        "specificity": 0.996,
+        "f1_score": 0.996,
+        "roc_auc": 1.0,
+        "latency_ms": 0.141
+      }
+    }
+  },
+  "kidney": {
+    "organ_name": "Renal & Urinary Tract",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.377
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.07
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.045
+      },
+      "MLP": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.529
+      },
+      "Quantum QSVC": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.113
+      }
+    }
+  },
+  "breast": {
+    "organ_name": "Breast & Gynecologic Oncology",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 0.996,
+        "sensitivity": 0.994,
+        "specificity": 0.998,
+        "f1_score": 0.996,
+        "roc_auc": 0.9999,
+        "latency_ms": 0.325
+      },
+      "XGBoost": {
+        "accuracy": 0.996,
+        "sensitivity": 0.994,
+        "specificity": 0.998,
+        "f1_score": 0.996,
+        "roc_auc": 0.9999,
+        "latency_ms": 0.109
+      },
+      "RBF SVM": {
+        "accuracy": 0.997,
+        "sensitivity": 0.994,
+        "specificity": 1.0,
+        "f1_score": 0.997,
+        "roc_auc": 0.9997,
+        "latency_ms": 0.114
+      },
+      "MLP": {
+        "accuracy": 0.997,
+        "sensitivity": 0.994,
+        "specificity": 1.0,
+        "f1_score": 0.997,
+        "roc_auc": 0.9998,
+        "latency_ms": 1.007
+      },
+      "Quantum QSVC": {
+        "accuracy": 0.995,
+        "sensitivity": 0.992,
+        "specificity": 0.998,
+        "f1_score": 0.995,
+        "roc_auc": 0.9965,
+        "latency_ms": 0.216
+      }
+    }
+  },
+  "liver": {
+    "organ_name": "Hepatic & Liver System",
+    "n_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.413
+      },
+      "XGBoost": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.074
+      },
+      "RBF SVM": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.064
+      },
+      "MLP": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.645
+      },
+      "Quantum QSVC": {
+        "accuracy": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "latency_ms": 0.117
+      }
+    }
+  }
+}
